@@ -3,8 +3,9 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
 //    id 'kotlin-parcelize'
-    id  "androidx.navigation.safeargs.kotlin"
-    id  'kotlin-android-extensions'
+    id "androidx.navigation.safeargs.kotlin"
+    id 'com.google.gms.google-services'
+//    id  'kotlin-android-extensions'
 //    id  'com.google.gms.google-services'
 }
 
@@ -41,6 +42,7 @@ android {
 }
 
 dependencies {
+    //noinspection GradleDependency
     implementation 'androidx.core:core-ktx:1.7.0'
 //    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
@@ -62,7 +64,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.databinding:databinding-common:7.3.1'
 //    implementation 'androidx.constraintlayout:constraintlayout:2.2.0-alpha04'
-    kapt "androidx.lifecycle:lifecycle-compiler:2.5.1"
+//    kapt "androidx.lifecycle:lifecycle-compiler:2.5.1"
 //    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
@@ -74,6 +76,7 @@ dependencies {
     //Room dependencies
     implementation "androidx.room:room-ktx:2.4.3"
     implementation "androidx.room:room-runtime:2.4.3"
+    implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
     kapt "androidx.room:room-compiler:2.4.3"
 
     //Coroutines Dependencies
@@ -82,10 +85,10 @@ dependencies {
     //Koin
 //    implementation "org.koin:koin-android:2.0.1"
 //    implementation "org.koin:koin-androidx-viewmodel:2.0.1"
-def  koin_version='3.3.0'
+//    def koin_version = '3.3.0'
     // Koin main features for Android
 //    implementation "io.insert-koin:koin-android:3.3.0"
-    implementation "io.insert-koin:koin-android:$koin_version"
+    implementation "io.insert-koin:koin-android:3.3.0"
 
 // Java Compatibility
 //    implementation "io.insert-koin:koin-android-compat:3.3.0"
@@ -97,41 +100,41 @@ def  koin_version='3.3.0'
 
 
     // Dependencies for local unit tests
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.hamcrest:hamcrest-all:1.3"
-    testImplementation "androidx.arch.core:core-testing:2.1.0"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
-    testImplementation "org.robolectric:robolectric:4.3-beta-1"
-    testImplementation "com.google.truth:truth:0.44"
-    testImplementation "org.mockito:mockito-core:2.19.0"
+//    testImplementation "junit:junit:4.13.2"
+//    testImplementation "org.hamcrest:hamcrest-all:1.3"
+//    testImplementation "androidx.arch.core:core-testing:2.1.0"
+//    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+//    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+//    testImplementation "org.robolectric:robolectric:4.3-beta-1"
+//    testImplementation "com.google.truth:truth:0.44"
+//    testImplementation "org.mockito:mockito-core:2.19.0"
 
     // AndroidX Test - JVM testing
-    testImplementation "androidx.test:core-ktx:1.5.0-rc01"
-    testImplementation "androidx.test.ext:junit-ktx:1.1.3"
-    testImplementation "androidx.test:rules:1.5.0-rc01"
+//    testImplementation "androidx.test:core-ktx:1.5.0-rc01"
+//    testImplementation "androidx.test.ext:junit-ktx:1.1.3"
+//    testImplementation "androidx.test:rules:1.5.0-rc01"
 
     // AndroidX Test - Instrumented testing
-    androidTestImplementation "androidx.test:core-ktx:1.5.0-rc01"
-    androidTestImplementation "androidx.test.ext:junit-ktx:1.1.3"
-    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
-    androidTestImplementation "androidx.test:rules:1.5.0-rc01"
-    androidTestImplementation "androidx.room:room-testing:2.4.3"
-    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
-    androidTestImplementation "org.robolectric:annotations:4.3-beta-1"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.4.0"
-    androidTestImplementation "androidx.test.espresso:espresso-intents:3.4.0"
-    androidTestImplementation "androidx.test.espresso.idling:idling-concurrent:3.4.0"
-    androidTestImplementation "junit:junit:4.13.2"
+//    androidTestImplementation "androidx.test:core-ktx:1.5.0-rc01"
+//    androidTestImplementation "androidx.test.ext:junit-ktx:1.1.3"
+//    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+//    androidTestImplementation "androidx.test:rules:1.5.0-rc01"
+//    androidTestImplementation "androidx.room:room-testing:2.4.3"
+//    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+//    androidTestImplementation "org.robolectric:annotations:4.3-beta-1"
+//    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
+//    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.4.0"
+//    androidTestImplementation "androidx.test.espresso:espresso-intents:3.4.0"
+//    androidTestImplementation "androidx.test.espresso.idling:idling-concurrent:3.4.0"
+//    androidTestImplementation "junit:junit:4.13.2"
     // Once https://issuetracker.google.com/127986458 is fixed this can be testImplementation
-    debugImplementation "androidx.fragment:fragment-testing:1.5.4"
+//    debugImplementation "androidx.fragment:fragment-testing:1.5.4"
 
     implementation "androidx.test:core:1.5.0-rc01"
     implementation "androidx.fragment:fragment-ktx:1.5.4"
-    androidTestImplementation "org.mockito:mockito-core:2.19.0"
-    androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:2.12.1"
-    androidTestImplementation('org.koin:koin-test:2.0.1') { exclude group: 'org.mockito' }
+//    androidTestImplementation "org.mockito:mockito-core:2.19.0"
+//    androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:2.12.1"
+//    androidTestImplementation('org.koin:koin-test:2.0.1') { exclude group: 'org.mockito' }
 
 
     //Maps & Geofencing
