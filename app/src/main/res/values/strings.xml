@@ -41,4 +41,9 @@
     <string name="geofence_too_many_pending_intents">You have provided too many PendingIntents to the addGeofences() call.</string>
     <string name="error_adding_geofence">Error Happened, Can\'t Add Geofence</string>
     <string name="add_remider_button">Add Remider button</string>
+    <string name="login_button">Login</string>
+    <string name="invalid_login_message">Invalid Login please try again</string>
+    <string name="gooogle">Gooogle</string>
+    <string name="email_pass">email/pass</string>
+    <string name="how_you_want_to_log_in">How do you want to log in?</string>
 </resources>

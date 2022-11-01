@@ -43,13 +43,13 @@
                 app:layout_constraintStart_toStartOf="@id/title"
                 app:layout_constraintTop_toBottomOf="@id/title"
                 tools:text="Description" />
+            <!--                android:textColor="@color/primaryTextColor"-->
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@{item.location}"
-                android:textColor="@color/primaryTextColor"
                 android:textSize="@dimen/text_size_small"
                 app:layout_constraintBottom_toBottomOf="@+id/description"
                 app:layout_constraintEnd_toEndOf="parent"

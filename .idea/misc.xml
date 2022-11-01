@@ -3,6 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/CDrive/Udacity/AdvancedAndroidDev/Project4/app/src/main/res/drawable/ic_add.xml" value="0.1245" />
+        <entry key="..\:/CDrive/Udacity/AdvancedAndroidDev/Project4/app/src/main/res/drawable/ic_location.xml" value="0.1245" />
+        <entry key="..\:/CDrive/Udacity/AdvancedAndroidDev/Project4/app/src/main/res/drawable/ic_no_data.xml" value="0.1245" />
+        <entry key="..\:/CDrive/Udacity/AdvancedAndroidDev/Project4/app/src/main/res/drawable/ic_save.xml" value="0.1245" />
+        <entry key="..\:/CDrive/Udacity/AdvancedAndroidDev/Project4/app/src/main/res/layout/auth_custom_layout_xml.xml" value="0.25" />
         <entry key="..\:/CDrive/Udacity/AdvancedAndroidDev/Project4/app/src/main/res/layout/it_reminder.xml" value="0.11041666666666666" />
       </map>
     </option>
