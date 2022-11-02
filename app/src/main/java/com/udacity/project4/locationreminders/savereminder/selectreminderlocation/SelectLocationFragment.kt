@@ -5,12 +5,16 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -30,19 +34,21 @@ import org.koin.android.ext.android.inject
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private val TAG = SelectLocationFragment::class.java.simpleName
 
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     // Register the permissions callback, which handles the user's response to the
 // system permissions dialog. Save the return value, an instance of
 // ActivityResultLauncher. You can use either a val, as shown in this snippet,
 // or a lateinit var in your onAttach() or onCreate() method.
     @SuppressLint("MissingPermission")
-    val requestPermissionLauncher =
+    val requestLocationPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
                 // Permission is granted. Continue the action or workflow in your
                 // app.
-                map.setMyLocationEnabled(true)
+                setCurrentLocation()
                 Log.d(TAG, "good, permission granted ")
             } else {
                 // Explain to the user that the feature is unavailable because the
@@ -55,6 +61,29 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
             }
         }
+
+    @SuppressLint("MissingPermission")
+    val requestBackgroundLocationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission is granted. Continue the action or workflow in your
+                // app.
+//                checkDeviceLocationSettingsAndStartGeofence()
+                Log.d(TAG, "good, permission granted ")
+            } else {
+                // Explain to the user that the feature is unavailable because the
+                // feature requires a permission that the user has denied. At the
+                // same time, respect the user's decision. Don't link to system
+                // settings in an effort to convince the user to change their
+                // decision.
+                Log.d(TAG, "Ooops, permission not granted ")
+                displayLocationRationale()
+
+            }
+        }
+
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -76,6 +105,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
 //        TODO: add the map setup implementation
 
@@ -134,10 +165,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //            GroundOverlayOptions().image(BitmapDescriptorFactory.fromResource(R.drawable.android))
 
 
-        // Add a marker in Sydney and move the camera
-        val homeLocation = LatLng(29.95241967963252, 30.93388293507602)
-        map.addMarker(MarkerOptions().position(homeLocation).title("Home"))
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLocation, 15f))
+
 //        setOnMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
@@ -183,11 +211,30 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
-    private fun isPermissionGranted(): Boolean {
+    private fun isLocationPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             requireActivity(),
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun isBackgroundLocationPermissionGranted(): Boolean {
+        return if (android.os.Build.VERSION.SDK_INT >=
+            android.os.Build.VERSION_CODES.Q
+        ) {
+            PackageManager.PERMISSION_GRANTED ==
+                    ContextCompat.checkSelfPermission(
+                        requireActivity(),
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    )
+        } else {
+            true
+        }
+
+//        return ContextCompat.checkSelfPermission(
+//            requireActivity(),
+//            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun displayLocationRationale() {
@@ -200,7 +247,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 Snackbar.LENGTH_INDEFINITE
             )
                 .setAction("Ok") {
-                    requestPermissionLauncher.launch(
+                    requestLocationPermissionLauncher.launch(
                         Manifest.permission.ACCESS_FINE_LOCATION
                     )
                 }
@@ -212,18 +259,67 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
-        if (isPermissionGranted()) {
-            map.setMyLocationEnabled(true)
+        if (isLocationPermissionGranted()) {
+            setCurrentLocation()
         } else {
             // You can directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.
-            requestPermissionLauncher.launch(
+            requestLocationPermissionLauncher.launch(
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
 
         }
     }
 
+    @SuppressLint("MissingPermission")
+    private fun setCurrentLocation() {
 
 
+        map.setMyLocationEnabled(true)
+
+//            fusedLocationClient.lastLocation
+//                .addOnSuccessListener {
+//                    if (it != null) {
+//                        val currentLocation = LatLng(it.latitude, it.longitude)
+//
+//                        map.addMarker(
+//                            MarkerOptions().position(currentLocation).title("Current Location")
+//                        )
+//                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+//                    } else {
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_LOW_POWER, null)
+            .addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    val currentLocation = LatLng(location.latitude, location.longitude)
+
+//                    map.addMarker(
+//                        MarkerOptions().position(currentLocation)
+//                            .title("Current Location")
+//                    )
+                    map.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            currentLocation,
+                            15f
+                        )
+                    )
+                }
+            }
+//                    }
+//                }
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private fun accessBackgroundLocation() {
+        if (isBackgroundLocationPermissionGranted()) {
+            map.setMyLocationEnabled(true)
+        } else {
+            // You can directly ask for the permission.
+            // The registered ActivityResultCallback gets the result of this request.
+            requestLocationPermissionLauncher.launch(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+
+        }
+    }
 }
