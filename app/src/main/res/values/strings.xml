@@ -46,4 +46,6 @@
     <string name="gooogle">Gooogle</string>
     <string name="email_pass">email/pass</string>
     <string name="how_you_want_to_log_in">How do you want to log in?</string>
+    <string name="background_educational_message">Getting the location in the background helps tracking your location and activate the reminder when you reach that location</string>
+    <string name="foreground_educational_message">Location permission will help us center the map on your location</string>
 </resources>

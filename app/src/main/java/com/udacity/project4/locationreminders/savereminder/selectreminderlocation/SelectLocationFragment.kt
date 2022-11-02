@@ -67,27 +67,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
         }
 
-    @SuppressLint("MissingPermission")
-    val requestBackgroundLocationPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                // Permission is granted. Continue the action or workflow in your
-                // app.
-//                checkDeviceLocationSettingsAndStartGeofence()
-                Log.d(TAG, "good, permission granted ")
-            } else {
-                // Explain to the user that the feature is unavailable because the
-                // feature requires a permission that the user has denied. At the
-                // same time, respect the user's decision. Don't link to system
-                // settings in an effort to convince the user to change their
-                // decision.
-                Log.d(TAG, "Ooops, permission not granted ")
-                displayLocationRationale()
 
-            }
-        }
 
 
     override fun onCreateView(
@@ -267,24 +247,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun isBackgroundLocationPermissionGranted(): Boolean {
-        return if (android.os.Build.VERSION.SDK_INT >=
-            android.os.Build.VERSION_CODES.Q
-        ) {
-            PackageManager.PERMISSION_GRANTED ==
-                    ContextCompat.checkSelfPermission(
-                        requireActivity(),
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    )
-        } else {
-            true
-        }
 
-//        return ContextCompat.checkSelfPermission(
-//            requireActivity(),
-//            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-//        ) == PackageManager.PERMISSION_GRANTED
-    }
 
     private fun displayLocationRationale() {
         Log.d(TAG, "displayLocationRationale")
@@ -292,7 +255,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
             Snackbar.make(
                 binding.root,
-                "Location permission will help us center the map on your location",
+                getString(R.string.foreground_educational_message),
                 Snackbar.LENGTH_INDEFINITE
             )
                 .setAction("Ok") {
@@ -360,17 +323,5 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
-    @SuppressLint("MissingPermission")
-    private fun accessBackgroundLocation() {
-        if (isBackgroundLocationPermissionGranted()) {
-            map.setMyLocationEnabled(true)
-        } else {
-            // You can directly ask for the permission.
-            // The registered ActivityResultCallback gets the result of this request.
-            requestLocationPermissionLauncher.launch(
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
 
-        }
-    }
 }
