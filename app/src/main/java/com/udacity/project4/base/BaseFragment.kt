@@ -18,7 +18,8 @@ abstract class BaseFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         _viewModel.showErrorMessage.observe(this, Observer {
-            Toast.makeText(activity, it, Toast.LENGTH_LONG).show()
+            Toast.makeText(activity, "Error: $it", Toast.LENGTH_LONG)
+                .show()
         })
         _viewModel.showToast.observe(this, Observer {
             Toast.makeText(activity, it, Toast.LENGTH_LONG).show()

@@ -32,6 +32,7 @@ class MyApp : Application() {
             viewModel {
                 AuthenticationViewModel()
             }
+
             //Declare singleton definitions to be later injected using by inject()
             single {
                 //This view model is declared singleton to be used across multiple fragments
