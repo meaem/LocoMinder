@@ -16,7 +16,7 @@
     <string name="hybrid_map">Hybrid Map</string>
     <string name="satellite_map">Satellite Map</string>
     <string name="terrain_map">Terrain Map</string>
-    <string name="lat_long_snippet">Lat: %1$.5f, Long: %2$.5f</string>
+    <string name="lat_long_snippet">Location at: %1$.5f, %2$.5f</string>
     <string name="dropped_pin">Dropped Pin</string>
     <string name="poi">poi</string>
     <string name="location_required_error">Location services must be enabled to use the app</string>
@@ -48,4 +48,22 @@
     <string name="how_you_want_to_log_in">How do you want to log in?</string>
     <string name="background_educational_message">Getting the location in the background helps tracking your location and activate the reminder when you reach that location</string>
     <string name="foreground_educational_message">Location permission will help us center the map on your location</string>
+    <string name="unknown_geofence_error">
+        Unknown error: the Geofence service is not available now
+    </string>
+    <string name="geofence_transition_invalid_type">invalid transition type: %d</string>
+    <string name="background_open_settings_message">open permission settings and select \'all time\' option</string>
+    <string name="reminder_deleted">reminder deleted</string>
+    <string name="geofence_added">geofence added</string>
+    <string name="could_not_add_geofence">Could not add the Geo fence</string>
+    <string name="tv_reminder_title">Reminder Title</string>
+    <string name="tv_location_name">Location Name</string>
+    <string name="tv_coordinates">Coordinates</string>
+    <string name="tv_reminder_description">Reminder Description</string>
+    <string name="tv_location_coordinatest_str">%f, %f</string>
+
+    <string name="btn_ok">OK</string>
+    <string name="btn_select_location">select Location</string>
+
+    <string name="select_location_educational_msg">Please select a location and press \'%s\' button</string>
 </resources>

@@ -3,6 +3,9 @@ package com.udacity.project4.locationreminders.geofence
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
+import com.google.android.gms.location.GeofencingEvent
+
 
 /**
  * Triggered by the Geofence.  Since we can have many Geofences at once, we pull the request
@@ -15,9 +18,87 @@ import android.content.Intent
  */
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    private val TAG = GeofenceBroadcastReceiver::class.java.simpleName
 
-//TODO: implement the onReceive method to receive the geofencing events at the background
+    override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d(TAG, "onReceive1 intent Type= ${intent?.javaClass?.simpleName}")
+        if (context != null) {
+            if (intent != null) {
+                Log.d(TAG, "onReceive2: intent = $intent")
+                val event = GeofencingEvent.fromIntent(intent)
+                Log.d(TAG, "onReceive2: event = $event")
+                GeofenceTransitionsJobIntentService.enqueueWork(context, intent)
+            }
+        }
+
+
+//        val geofencingEvent = intent?.let { GeofencingEvent.fromIntent(it) }
+//        if (geofencingEvent != null) {
+//            if (geofencingEvent.hasError()) {
+//                val errorMessage = GeofenceStatusCodes
+//                    .getStatusCodeString(geofencingEvent.errorCode)
+//                Log.e(TAG, errorMessage)
+//                return
+//            }
+//
+//            // Get the transition type.
+//            val geofenceTransition = geofencingEvent.geofenceTransition
+//
+//            // Test that the reported transition was of interest.
+//            if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER
+////                || geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT
+//            ) {
+//
+//                // Get the geofences that were triggered. A single event can trigger
+//                // multiple geofences.
+//                val triggeringGeofences = geofencingEvent.triggeringGeofences
+//
+//                // Get the transition details as a String.
+//                val geofenceTransitionDetails = getGeofenceTransitionDetails(
+//                    this,
+//                    geofenceTransition,
+//                    triggeringGeofences
+//                )
+//
+//                // Send notification and log the transition details.
+//                if (context != null) {
+//                    if (geofenceTransitionDetails != null) {
+////                        Log.i(TAG, geofenceTransitionDetails)
+//                        sendNotification(context, geofenceTransitionDetails)
+//                    }
+//                }
+//
+//
+//            } else {
+//                // Log the error.
+//                context?.let {
+//                    Log.e(
+//                        TAG, context.getString(
+//                            R.string.geofence_transition_invalid_type,
+//                            geofenceTransition
+//                        )
+//                    )
+//                }
+//
+//            }
+//
+//
+//        }
+
 
     }
+
+//    private fun getGeofenceTransitionDetails(
+//        geofenceBroadcastReceiver: GeofenceBroadcastReceiver,
+//        geofenceTransition: Int,
+//        triggeringGeofences: List<Geofence>?
+//    ): ReminderDataItem? {
+//        return if (triggeringGeofences != null) {
+//            ReminderDataItem("fake","fake","fake",1.0,1.0,"fake")
+//        } else
+//            null
+//
+//    }
+
+
 }

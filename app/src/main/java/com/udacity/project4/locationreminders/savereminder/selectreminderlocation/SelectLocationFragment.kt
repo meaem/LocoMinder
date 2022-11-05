@@ -68,8 +68,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
 
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -106,34 +104,37 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
 
         _viewModel.selectedPOI.observe(viewLifecycleOwner) {
-            if (it != null) {
-                val snippet = getString(
-                    R.string.lat_long_snippet, it.latLng.latitude,
-                    it.latLng.longitude
-                )
-                marker?.remove()
+            binding.btnSelect.isEnabled = it != null
 
-                marker = map.addMarker(
-                    MarkerOptions()
-                        .position(it.latLng)
-                        .title(it.name)
-                        .snippet("${it.name} $snippet")
-
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                )
-                marker?.showInfoWindow()
+            if (::map.isInitialized) {
+                if (it != null) {
+                    updateMarkerLocation(it)
+                }
             }
         }
-//        marker.observe(viewLifecycleOwner, Observer {
 //
-//            Log.d(TAG,"marker: "+(it == null).toString())
-//            binding.btnSelect.isEnabled = it != null
-//        })
 
-        _viewModel.showSnackBar.value = "Please select a location and press save button"
+        _viewModel.showSnackBar.value = getString(
+            R.string.select_location_educational_msg,
+            getString(R.string.btn_select_location).uppercase()
+        )
 //        _viewModel.showToast.call()
 
         return binding.root
+    }
+
+    private fun updateMarkerLocation(it: PointOfInterest) {
+        marker?.remove()
+
+        marker = map.addMarker(
+            MarkerOptions()
+                .position(it.latLng)
+                .title(it.name)
+                .snippet(it.name)
+
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+        )
+        marker?.showInfoWindow()
     }
 
     private fun onLocationSelected() {
@@ -143,6 +144,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         _viewModel.longitude.value = marker?.position?.longitude
         _viewModel.latitude.value = marker?.position?.latitude
+        _viewModel.reminderSelectedLocationStr.value = marker?.title
+
         _viewModel.navigationCommand.value = NavigationCommand.Back
 
 
@@ -191,6 +194,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //        androidOverlay.position(homeLocation, 100f)
 //        map.addGroundOverlay(androidOverlay)
 
+        _viewModel.selectedPOI.value?.let { updateMarkerLocation(it) }
 
     }
 
@@ -220,23 +224,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private fun setOnMapLongClick(map: GoogleMap) {
 
         map.setOnMapLongClickListener {
-            _viewModel.selectedPOI.value = PointOfInterest(it, getString(R.string.dropped_pin), "")
-
-//            val snippet = getString(
-//                R.string.lat_long_snippet, it.latitude,
-//                it.longitude
-//            )
-//
-//
-//            marker?.remove()
-//
-//            marker = map.addMarker(
-//                MarkerOptions().position(it)
-//                    .title(getString(R.string.dropped_pin))
-//                    .snippet(snippet)
-//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-//            )
-//            marker?.showInfoWindow()
+            val snippet = getString(
+                R.string.lat_long_snippet, it.latitude,
+                it.longitude
+            )
+            _viewModel.selectedPOI.value = PointOfInterest(it, "", snippet)
         }
     }
 
@@ -246,7 +238,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
-
 
 
     private fun displayLocationRationale() {
@@ -279,10 +270,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             requestLocationPermissionLauncher.launch(
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
-
         }
-
-
     }
 
     @SuppressLint("MissingPermission")
@@ -321,7 +309,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //                    }
 //                }
     }
-
 
 
 }
