@@ -4,6 +4,10 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationViewModel
 import com.udacity.project4.databinding.ActivityRemindersBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -18,6 +22,8 @@ class RemindersActivity : AppCompatActivity() {
     private val TAG = RemindersActivity::class.java.simpleName
 
     private lateinit var databinding: ActivityRemindersBinding
+    private lateinit var appBarConfiguration: AppBarConfiguration
+
     private val viewModel: AuthenticationViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +33,13 @@ class RemindersActivity : AppCompatActivity() {
 
 
         setContentView(databinding.root)
+
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        appBarConfiguration = AppBarConfiguration(navController.graph)
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
 
 //        viewModel.authenticationState.observe(this, Observer { authenticationState ->
 //            when (authenticationState) {
