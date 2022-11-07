@@ -9,6 +9,7 @@ import com.udacity.project4.getOrAwaitValue
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.FakeRemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -96,6 +97,7 @@ class SaveReminderViewModelTest : AutoCloseKoinTest() {
     }
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun locationNull_SaveReminder_DisplaySnackBarError() = runTest {
 
