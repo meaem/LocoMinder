@@ -1,10 +1,8 @@
 package com.udacity.project4.locationreminders
 
 import androidx.lifecycle.Lifecycle.State.DESTROYED
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
@@ -16,18 +14,12 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import com.google.firebase.auth.FirebaseUser
 import com.udacity.project4.R
-import com.udacity.project4.authentication.AuthenticationViewModel
-import com.udacity.project4.authentication.FakeFirebaseUser
-import com.udacity.project4.authentication.FakeFirebaseUserLiveData
+import com.udacity.project4.TestingUtils
+import com.udacity.project4.TestingUtils.saveReminderViewModel
 import com.udacity.project4.locationreminders.data.ReminderDataSource
-import com.udacity.project4.locationreminders.data.local.LocalDB
-import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
-import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
-import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.DataBindingIdlingResource
 import com.udacity.project4.utils.EspressoIdlingResource
 import com.udacity.project4.utils.monitorActivity
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.*
@@ -36,11 +28,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 import org.koin.test.get
 import org.koin.test.junit5.AutoCloseKoinTest
 
@@ -54,8 +41,6 @@ class RemindersActivityTest : AutoCloseKoinTest() {
     // An idling resource that waits for Data Binding to have no pending bindings.
     private val dataBindingIdlingResource = DataBindingIdlingResource()
     private lateinit var fakeFBUser: MutableLiveData<FirebaseUser?>
-    private lateinit var authenticationViewModel: AuthenticationViewModel
-    private lateinit var saveReminderViewModel: SaveReminderViewModel
 
     @get:Rule
     val permissionRule = GrantPermissionRule.grant(
@@ -66,51 +51,51 @@ class RemindersActivityTest : AutoCloseKoinTest() {
 
     @Before
     fun init() {
-        stopKoin()
-//        TestingUtils.initKoin()
-
-        val myModule = module {
-
-            viewModel {
-                RemindersListViewModel(
-                    app = get(),
-                    dataSource = get() as ReminderDataSource
-                )
-            }
-
-            single<MutableLiveData<FirebaseUser?>> { FakeFirebaseUserLiveData(FakeFirebaseUser()) }
-            viewModel {
-                authenticationViewModel = AuthenticationViewModel(
-                    get<MutableLiveData<FirebaseUser?>>() as LiveData<FirebaseUser?>, get()
-                )
-                authenticationViewModel
-            }
-            viewModel {
-                saveReminderViewModel = SaveReminderViewModel(get(), get())
-                saveReminderViewModel
-            }
-            single { LocalDB.createRemindersDao(get()) }
-
-            single<ReminderDataSource> { RemindersLocalRepository(get(), Dispatchers.Main) }
-//            single { RemindersListViewModel(get(),get()) }
-
-        }
-
-        startKoin {
 
 
-            androidContext(ApplicationProvider.getApplicationContext())
-            modules(listOf(myModule))
-        }
+        TestingUtils.initKoin("module2")
+
+//        val myModule = module {
+//
+//            viewModel {
+//                RemindersListViewModel(
+//                    app = get(),
+//                    dataSource = get() as ReminderDataSource
+//                )
+//            }
+//
+//            single<MutableLiveData<FirebaseUser?>> { FakeFirebaseUserLiveData(FakeFirebaseUser()) }
+//            viewModel {
+//                authenticationViewModel = AuthenticationViewModel(
+//                    get<MutableLiveData<FirebaseUser?>>() as LiveData<FirebaseUser?>, get()
+//                )
+//                authenticationViewModel
+//            }
+//            viewModel {
+//                saveReminderViewModel = SaveReminderViewModel(get(), get())
+//                saveReminderViewModel
+//            }
+//            single { LocalDB.createRemindersDao(get()) }
+//
+//            single<ReminderDataSource> { RemindersLocalRepository(get(), Dispatchers.Main) }
+////            single { RemindersListViewModel(get(),get()) }
+//
+//        }
+//
+//        startKoin {
+//
+//
+//            androidContext(ApplicationProvider.getApplicationContext())
+//            modules(listOf(myModule))
+//        }
 
         repository = get()
         fakeFBUser = get()
-
     }
 
     @After
     fun tearDown() {
-        stopKoin()
+        TestingUtils.releaseKoin()
     }
 
     @Before
