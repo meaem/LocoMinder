@@ -15,7 +15,8 @@ import androidx.test.filters.MediumTest
 import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.data.local.FakeRemindersLocalRepository
+import com.udacity.project4.locationreminders.data.local.RemindersFakeLocalRepository
+//import com.udacity.project4.locationreminders.data.local.FakeReminderDataSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -28,7 +29,9 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.get
 import org.koin.test.junit5.AutoCloseKoinTest
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @MediumTest
@@ -54,7 +57,7 @@ internal class ReminderListFragmentTest : AutoCloseKoinTest() {
 
 
 
-            single<ReminderDataSource> { FakeRemindersLocalRepository(mutableListOf()) }
+            single<ReminderDataSource> { RemindersFakeLocalRepository(mutableListOf()) }
 
         }
 
@@ -75,31 +78,7 @@ internal class ReminderListFragmentTest : AutoCloseKoinTest() {
     }
 
 
-//    @Test
-//    fun remiderList_has_LogoutMenuItem() = runTest {
-//
-//        // GIVEN - On the home screen
-//        val scenario =
-//            launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.Theme_Project4)
-//
-//        onView(withText(getApplicationContext<Context>().getString(R.string.logout)))
-//            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-//
-//    }
-//
-//    @Test
-//    fun logout_navigatesTo_LoginActivity() = runTest {
-//
-//        // GIVEN - On the home screen
-//        val scenario =
-//            launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.Theme_Project4)
-//
-//        onView(withId(R.id.logout))
-//            .perform(click())
-//
-//        onView(withId(R.id.login_button))
-//            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-//    }
+
 
     @Test
     fun remiderList_hasNoItems() = runTest {
@@ -167,7 +146,7 @@ internal class ReminderListFragmentTest : AutoCloseKoinTest() {
         val scenario =
             launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.Theme_Project4)
 
-        val navController = Mockito.mock(NavController::class.java)
+        val navController = mock(NavController::class.java)
 
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
@@ -177,7 +156,7 @@ internal class ReminderListFragmentTest : AutoCloseKoinTest() {
         onView(withId(R.id.addReminderFAB)).perform(click())
 
         // THEN - Verify that we navigate to the Save Reminder Fragment
-        Mockito.verify(navController).navigate(
+        verify(navController).navigate(
             ReminderListFragmentDirections.toSaveReminder()
         )
     }

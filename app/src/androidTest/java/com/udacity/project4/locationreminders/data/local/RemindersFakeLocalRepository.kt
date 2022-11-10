@@ -4,13 +4,8 @@ import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 
-class FakeRemindersLocalRepository(private val reminders: MutableList<ReminderDTO>) :
+class RemindersFakeLocalRepository(private val reminders: MutableList<ReminderDTO>) :
     ReminderDataSource {
-
-    companion object {
-        const val TEST_EXCEPTION = "Test exception"
-    }
-
     private var shouldReturnError = false
 
     fun setReturnError(shouldReturnError: Boolean) {
@@ -21,7 +16,7 @@ class FakeRemindersLocalRepository(private val reminders: MutableList<ReminderDT
         return if (!shouldReturnError) {
             Result.Success(reminders)
         } else {
-            Result.Error(TEST_EXCEPTION)
+            Result.Error("No Reminders Found")
         }
     }
 

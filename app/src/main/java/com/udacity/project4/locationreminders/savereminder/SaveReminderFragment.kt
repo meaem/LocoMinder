@@ -32,6 +32,7 @@ import org.koin.android.ext.android.inject
 class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
+
     private lateinit var binding: FragmentSaveReminderBinding
     private lateinit var geofencingClient: GeofencingClient
 
@@ -77,30 +78,25 @@ class SaveReminderFragment : BaseFragment() {
             }
         }
 
-
+    @SuppressLint("MissingPermission", "InlinedApi")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_save_reminder, container, false)
+        binding.lifecycleOwner = this
+
 
         setDisplayHomeAsUpEnabled(true)
 
         binding.viewModel = _viewModel
 
-        return binding.root
-    }
-
-    @SuppressLint("MissingPermission", "InlinedApi")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
-            //            Navigate to another fragment to get the user location
+            //            Navigate to SelectLocation fragment to get the user location
+
             _viewModel.navigationCommand.value =
-                NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
+                NavigationCommand.To(SaveReminderFragmentDirections.toSelectLocationFragment())
         }
 
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
@@ -113,8 +109,8 @@ class SaveReminderFragment : BaseFragment() {
                 val title = _viewModel.reminderTitle.value
                 val description = _viewModel.reminderDescription.value
                 val location = _viewModel.reminderSelectedLocationStr.value
-                val latitude = _viewModel.latitude.value
-                val longitude = _viewModel.longitude.value
+                val latitude = _viewModel.selectedPOI.value?.latLng?.latitude
+                val longitude = _viewModel.selectedPOI.value?.latLng?.longitude
 
                 rData =
                     ReminderDataItem(title, description, location, latitude, longitude)
@@ -157,7 +153,17 @@ class SaveReminderFragment : BaseFragment() {
                     }
             }
         }
+
+        return binding.root
     }
+
+//    @SuppressLint("MissingPermission", "InlinedApi")
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//
+//
+//
+//    }
 
     private fun getGeofence(rData: ReminderDataItem) =
         Geofence.Builder()

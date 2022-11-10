@@ -43,6 +43,10 @@ android {
         exclude 'META-INF/LICENSE.md'
         exclude 'META-INF/LICENSE-notice.md'
     }
+    testOptions.unitTests {
+//        includeAndroidResources  true
+        returnDefaultValues  true
+    }
 }
 
 dependencies {
@@ -80,6 +84,7 @@ dependencies {
     //Room dependencies
     implementation "androidx.room:room-ktx:2.4.3"
     implementation "androidx.room:room-runtime:2.4.3"
+    implementation 'androidx.test:rules:1.4.0'
     kapt "androidx.room:room-compiler:2.4.3"
 
 
@@ -185,5 +190,11 @@ dependencies {
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
+
+    implementation "androidx.test.espresso:espresso-idling-resource:3.4.0"
+    androidTestImplementation "androidx.navigation:navigation-testing:2.5.3"
+
 
 }

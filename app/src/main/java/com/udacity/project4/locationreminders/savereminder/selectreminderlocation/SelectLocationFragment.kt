@@ -26,6 +26,7 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.utils.EspressoIdlingResource
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 
@@ -69,59 +70,115 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_select_location, container, false)
 
-        binding.viewModel = _viewModel
-        binding.lifecycleOwner = this
-
-        setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        binding.viewModel = _viewModel
+
+        _viewModel.mapReady.postValue(false)
+
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        setHasOptionsMenu(true)
+
 
 //        TODO: add the map setup implementation
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        binding.btnSelect.setOnClickListener {
-            // TODO: call this function after the user confirms on the selected location
-            if (marker != null) {
-                Log.d(TAG, marker?.snippet ?: "")
-                onLocationSelected()
-
-            } else {
-                Log.d(TAG, "null marker")
-                _viewModel.showErrorMessage.value =
-                    "Please select a place by either click on any landmark or by long click on any desired location"
-
-            }
-        }
-
-        _viewModel.selectedPOI.observe(viewLifecycleOwner) {
-            binding.btnSelect.isEnabled = it != null
-
-            if (::map.isInitialized) {
-                if (it != null) {
-                    updateMarkerLocation(it)
-                }
-            }
-        }
+//        _viewModel.navigationCommand.observe(viewLifecycleOwner) {
 //
-
-        _viewModel.showSnackBar.value = getString(
-            R.string.select_location_educational_msg,
-            getString(R.string.btn_select_location).uppercase()
-        )
-//        _viewModel.showToast.call()
+//        }
 
         return binding.root
     }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.lifecycleOwner = this
+
+        binding.btnSelect.setOnClickListener {
+
+            // TODO: call this function after the user confirms on the selected location
+//            _viewModel.showErrorMessage.value ="here"
+//            if (marker != null) {
+            Log.d(TAG, "btnSelect.setOnClickListener")
+//                _viewModel.showErrorMessage.value ="no error"
+            onLocationSelected()
+
+//            } else {
+//                Log.d(TAG, "null marker")
+//                _viewModel.showErrorMessage.value =
+//                    "Please select a place by either click on any landmark or by long click on any desired location"
+
+//            }
+        }
+
+        _viewModel.reminderSelectedLocationStr.observe(viewLifecycleOwner) {
+            binding.btnSelect.isEnabled = it != null
+        }
+        _viewModel.selectedPOI.observe(viewLifecycleOwner) {
+            if (_viewModel.mapReady.value == true) {
+
+                if (it != null) {
+                    _viewModel.reminderSelectedLocationStr.postValue(it.name)
+                    updateMarkerLocation(it)
+                }
+            }
+
+
+//            if (::map.isInitialized ) {
+//                if (it != null) {
+//
+//                }
+//            }
+        }
+
+        _viewModel.mapReady.observe(viewLifecycleOwner) {
+
+            if (it) {
+                // TODO: zoom to the user location after taking his permission
+                checkPermissions()
+
+                // TODO: add style to the map
+                setMapStyle(map)
+
+                // TODO: put a marker to location that the user selected
+                setOnMapLongClick(map)
+
+                setPoiClick(map)
+
+//        androidOverlay.position(homeLocation, 100f)
+//        map.addGroundOverlay(androidOverlay)
+
+                _viewModel.selectedPOI.value?.let { updateMarkerLocation(it) }
+                EspressoIdlingResource.decrement()
+            } else {
+                binding.btnSelect.isEnabled = false
+                EspressoIdlingResource.increment()
+            }
+
+        }
+//
+
+//        _viewModel.showSnackBar.value = getString(
+//            R.string.select_location_educational_msg,
+//            getString(R.string.btn_select_location).uppercase()
+//        )
+//        _viewModel.showToast.call()
+
+
+    }
+
 
     private fun updateMarkerLocation(it: PointOfInterest) {
         marker?.remove()
@@ -142,12 +199,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
 
-        _viewModel.longitude.value = marker?.position?.longitude
-        _viewModel.latitude.value = marker?.position?.latitude
-        _viewModel.reminderSelectedLocationStr.value = marker?.title
+//        _viewModel.longitude.value = marker?.position?.longitude
+//        _viewModel.latitude.value = marker?.position?.latitude
+//        _viewModel.reminderSelectedLocationStr.postValue(marker?.title)
+        Log.d(TAG, "xlocation: " + _viewModel.selectedPOI.value?.name)
+        Log.d(TAG, "xLocationStr: " + _viewModel.reminderSelectedLocationStr.value)
 
-        _viewModel.navigationCommand.value = NavigationCommand.Back
+        _viewModel.navigationCommand.postValue(NavigationCommand.Back)
 
+
+//        findNavController().popBackStack()
+//        findNavController().navigate(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
 
     }
 
@@ -180,21 +242,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
-        // TODO: zoom to the user location after taking his permission
-        checkPermissions()
 
-        // TODO: add style to the map
-        setMapStyle(map)
+        _viewModel.mapReady.postValue(true)
 
-        // TODO: put a marker to location that the user selected
-        setOnMapLongClick(map)
-
-        setPoiClick(map)
-
-//        androidOverlay.position(homeLocation, 100f)
-//        map.addGroundOverlay(androidOverlay)
-
-        _viewModel.selectedPOI.value?.let { updateMarkerLocation(it) }
 
     }
 
@@ -217,7 +267,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener {
-            _viewModel.selectedPOI.value = it
+            _viewModel.selectedPOI.postValue(it)
         }
     }
 
@@ -228,7 +278,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 R.string.lat_long_snippet, it.latitude,
                 it.longitude
             )
-            _viewModel.selectedPOI.value = PointOfInterest(it, "", snippet)
+            _viewModel.selectedPOI.postValue(PointOfInterest(it, "", snippet))
         }
     }
 

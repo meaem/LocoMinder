@@ -1,19 +1,48 @@
 package com.udacity.project4.authentication
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseUser
+import com.udacity.project4.base.BaseViewModel
 
-class AuthenticationViewModel : ViewModel() {
+class AuthenticationViewModel(
+    fbLiveData: LiveData<FirebaseUser?>, app:
+    Application
+) : BaseViewModel(app) {
 
-    enum class AuthenticationState {
-        AUTHENTICATED, UNAUTHENTICATED, INVALID_AUTHENTICATION
+    private var logoutLogic = fun() {
+        AuthUI.getInstance()
+            .signOut(getApplication())
+            .addOnCompleteListener {
+
+                if (!it.isSuccessful) {
+                    showToast.value = "Could not logout!! Please try again"
+                }
+            }
     }
 
-    // TODO Create an authenticationState variable based off the FirebaseUserLiveData object. By
+    enum class AuthenticationState {
+        AUTHENTICATED, UNAUTHENTICATED
+        //, INVALID_AUTHENTICATION
+    }
+
+    fun logout() {
+        logoutLogic()
+    }
+
+    @VisibleForTesting
+    fun setLogoutLogic(logic: () -> Unit) {
+        logoutLogic = logic
+    }
+
+    // Create an authenticationState variable based off the FirebaseUserLiveData object. By
     //  creating this variable, other classes will be able to query for whether the user is logged
     //  in or not
 
-    val authenticationState = FirebaseUserLiveData().map { user ->
+    val authenticationState = fbLiveData.map { user ->
         if (user != null) {
             AuthenticationState.AUTHENTICATED
         } else {

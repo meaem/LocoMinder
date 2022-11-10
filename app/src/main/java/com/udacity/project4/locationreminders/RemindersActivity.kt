@@ -1,6 +1,8 @@
 package com.udacity.project4.locationreminders
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -8,11 +10,11 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.udacity.project4.R
+import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.authentication.AuthenticationViewModel
 import com.udacity.project4.databinding.ActivityRemindersBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-//import kotlinx.android.synthetic.main.activity_reminders.*
 
 /**
  * The RemindersActivity that holds the reminders fragments
@@ -41,21 +43,21 @@ class RemindersActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
 
-//        viewModel.authenticationState.observe(this, Observer { authenticationState ->
-//            when (authenticationState) {
-//                AuthenticationViewModel.AuthenticationState.UNAUTHENTICATED -> {
-////                    Log.d(TAG, "Success user name: '${user?.displayName}'")
-//                    val intent = Intent(this, AuthenticationActivity::class.java)
-//                    startActivity(intent)
-//
-//                    finish()
-//                }
-//                else -> Log.e(
-//                    AuthenticationActivity.TAG,
-//                    "Authentication state that doesn't require any UI change $authenticationState"
-//                )
-//            }
-//        })
+        viewModel.authenticationState.observe(this) { authenticationState ->
+            when (authenticationState) {
+                AuthenticationViewModel.AuthenticationState.UNAUTHENTICATED -> {
+//                    Log.d(TAG, "Success user name: '${user?.displayName}'")
+                    val intent = Intent(this, AuthenticationActivity::class.java)
+                    startActivity(intent)
+
+                    finish()
+                }
+                else -> Log.d(
+                    AuthenticationActivity.TAG,
+                    "Authentication state that doesn't require any UI change $authenticationState"
+                )
+            }
+        }
 
     }
 
@@ -64,6 +66,9 @@ class RemindersActivity : AppCompatActivity() {
             android.R.id.home -> {
                 databinding.navHostFragment.findNavController().popBackStack()
                 return true
+            }
+            R.id.logout -> {
+                viewModel.logout()
             }
         }
         return super.onOptionsItemSelected(item)
