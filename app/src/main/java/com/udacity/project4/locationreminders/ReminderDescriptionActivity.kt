@@ -38,8 +38,8 @@ class ReminderDescriptionActivity : AppCompatActivity() {
 
             finish()
         }
-        val x = intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem
-        binding.reminderDataItem = x
+        val reminderData = intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem
+        binding.reminderDataItem = reminderData
 
     }
 }

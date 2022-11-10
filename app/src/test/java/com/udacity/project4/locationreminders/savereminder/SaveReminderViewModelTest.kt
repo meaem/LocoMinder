@@ -4,12 +4,13 @@ package com.udacity.project4.locationreminders.savereminder
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PointOfInterest
 import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.R
 import com.udacity.project4.getOrAwaitValue
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.FakeRemindersLocalRepository
-import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.pauseDispatcher
 import kotlinx.coroutines.test.resumeDispatcher
@@ -30,9 +31,6 @@ import org.koin.test.junit5.AutoCloseKoinTest
 import org.mockito.Mock
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-
-
-private const val FAKE_STRING = "HELLO WORLD"
 
 
 @RunWith(AndroidJUnit4::class)
@@ -87,16 +85,25 @@ class SaveReminderViewModelTest : AutoCloseKoinTest() {
 
     @Test
     fun titleEmpty_Validate_DisplaySnackBarError() {
+//        viewModel.setDataItemForTest(ReminderDataItem("", "", "", 0.0, 0.0))
+        viewModel.reminderTitle.value = ""
+        viewModel.reminderDescription.value = ""
+        viewModel.reminderSelectedLocationStr.value = ""
+        viewModel.selectedPOI.value = PointOfInterest(LatLng(0.0, 0.0), "", "")
 
-        viewModel.validateEnteredData(ReminderDataItem("", "", "", 0.0, 0.0))
+        viewModel.validateEnteredData()
         val x = viewModel.showSnackBarInt.getOrAwaitValue()
         assertThat(x, `is`(R.string.err_enter_title))
     }
 
     @Test
     fun titleNull_Validate_DisplaySnackBarError() {
+        viewModel.reminderTitle.value = null
+        viewModel.reminderDescription.value = ""
+        viewModel.reminderSelectedLocationStr.value = ""
+        viewModel.selectedPOI.value = PointOfInterest(LatLng(0.0, 0.0), "", "")
 
-        viewModel.validateEnteredData(ReminderDataItem(null, "", "", 0.0, 0.0))
+        viewModel.validateEnteredData()
         val x = viewModel.showSnackBarInt.getOrAwaitValue()
         assertThat(x, `is`(R.string.err_enter_title))
     }
@@ -104,16 +111,26 @@ class SaveReminderViewModelTest : AutoCloseKoinTest() {
 
     @Test
     fun locationEmpty_Validate_DisplaySnackBarError() {
+        viewModel.reminderTitle.value = "Title"
+        viewModel.reminderDescription.value = ""
+        viewModel.reminderSelectedLocationStr.value = ""
+        viewModel.selectedPOI.value = PointOfInterest(LatLng(0.0, 0.0), "", "")
 
-        viewModel.validateEnteredData(ReminderDataItem("Title", "", "", 0.0, 0.0))
+        viewModel.validateEnteredData()
         val x = viewModel.showSnackBarInt.getOrAwaitValue()
         assertThat(x, `is`(R.string.err_select_location))
     }
 
     @Test
     fun locationNull_Validate_DisplaySnackBarError() {
+//        viewModel.setDataItemForTest(ReminderDataItem("Title", "", null, 0.0, 0.0))
 
-        viewModel.validateEnteredData(ReminderDataItem("Title", "", null, 0.0, 0.0))
+        viewModel.reminderTitle.value = "Title"
+        viewModel.reminderDescription.value = ""
+        viewModel.reminderSelectedLocationStr.value = null
+        viewModel.selectedPOI.value = PointOfInterest(LatLng(0.0, 0.0), "", "")
+
+        viewModel.validateEnteredData()
         val x = viewModel.showSnackBarInt.getOrAwaitValue()
         assertThat(x, `is`(R.string.err_select_location))
     }
@@ -121,8 +138,13 @@ class SaveReminderViewModelTest : AutoCloseKoinTest() {
 
     @Test
     fun locationNull_SaveReminder_DisplaySnackBarError() {
+//        viewModel.setDataItemForTest(ReminderDataItem("Title", "", null, 0.0, 0.0))
+        viewModel.reminderTitle.value = "Title"
+        viewModel.reminderDescription.value = ""
+        viewModel.reminderSelectedLocationStr.value = ""
+        viewModel.selectedPOI.value = PointOfInterest(LatLng(0.0, 0.0), "", "")
 
-        viewModel.validateAndSaveReminder(ReminderDataItem("Title", "", null, 0.0, 0.0))
+        viewModel.validateAndSaveReminder()
 
 
         assertThat(viewModel.showSnackBarInt.getOrAwaitValue(), `is`(R.string.err_select_location))
@@ -132,8 +154,14 @@ class SaveReminderViewModelTest : AutoCloseKoinTest() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun normalReminder_SaveReminder_DisplaySuccess() {
+        viewModel.reminderTitle.value = "Title"
+        viewModel.reminderDescription.value = ""
+        viewModel.reminderSelectedLocationStr.value = "Loc1"
+        viewModel.selectedPOI.value = PointOfInterest(LatLng(0.0, 0.0), "", "")
+
         mainCoroutineRule.pauseDispatcher()
-        viewModel.validateAndSaveReminder(ReminderDataItem("Title", "", "Loc1", 0.0, 0.0))
+//        viewModel.setDataItemForTest(ReminderDataItem("Title", "", "Loc1", 0.0, 0.0))
+        viewModel.validateAndSaveReminder()
 
         assertThat(viewModel.showLoading.getOrAwaitValue(), `is`(true))
 

@@ -73,16 +73,4 @@ class RemindersActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
-//    @SuppressLint("MissingSuperCall")
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<String>,
-//        grantResults: IntArray
-//    ) {
-//        Log.d(TAG, "Activity onRequestPermissionsResult")
-//        Log.d(TAG, "Activity permissions:$permissions")
-//        Log.d(TAG, "Activity grantResults: $grantResults")
-//
-//    }
 }

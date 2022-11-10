@@ -9,8 +9,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.udacity.project4.base.BaseViewModel
 
 class AuthenticationViewModel(
-    fbLiveData: LiveData<FirebaseUser?>, app:
-    Application
+    fbLiveData: LiveData<FirebaseUser?>,
+    app: Application
 ) : BaseViewModel(app) {
 
     private var logoutLogic = fun() {

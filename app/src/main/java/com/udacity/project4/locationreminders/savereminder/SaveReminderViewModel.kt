@@ -20,15 +20,20 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val reminderDescription = MutableLiveData<String?>()
     val reminderSelectedLocationStr = MutableLiveData<String?>()
     val selectedPOI = MutableLiveData<PointOfInterest?>()
-//    val latitude = MutableLiveData<Double?>()
+
+    //    val latitude = MutableLiveData<Double?>()
 //    val longitude = MutableLiveData<Double?>()
 
     val remiderSavedLocally: SingleLiveEvent<Boolean> = SingleLiveEvent()
     val mapReady: SingleLiveEvent<Boolean> = SingleLiveEvent()
 
+    private lateinit var _reminderData: ReminderDataItem
+
+    val reminderData: ReminderDataItem
+        get() = _reminderData
 
     init {
-        mapReady.postValue(false);
+        mapReady.postValue(false)
     }
 
     /**
@@ -44,47 +49,48 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         selectedPOI.postValue(null)
         remiderSavedLocally.postValue(false)
         mapReady.postValue(false)
-
+        showLoading.postValue(false)
     }
 
     /**
      * Validate the entered data then saves the reminder data to the DataSource
      */
-    fun validateAndSaveReminder(reminderData: ReminderDataItem) {
-        if (validateEnteredData(reminderData)) {
-            saveReminder(reminderData)
+    fun validateAndSaveReminder() {
+        if (validateEnteredData()) {
+            saveReminder()
         }
     }
 
     /**
      * Save the reminder to the data source
      */
-    private fun saveReminder(reminderData: ReminderDataItem) {
+    private fun saveReminder() {
         showLoading.value = true
+
+        reminderTitle.value = "saving!!"
         viewModelScope.launch {
             dataSource.saveReminder(
                 ReminderDTO(
-                    reminderData.title,
-                    reminderData.description,
-                    reminderData.location,
-                    reminderData.latitude,
-                    reminderData.longitude,
-                    reminderData.id
+                    _reminderData.title,
+                    _reminderData.description,
+                    _reminderData.location,
+                    _reminderData.latitude,
+                    _reminderData.longitude,
+                    _reminderData.id
                 )
-
             )
-            remiderSavedLocally.value = true
-
-            showLoading.value = false
-            showToast.value = app.getString(R.string.reminder_saved)
-            navigationCommand.value = NavigationCommand.Back
+            remiderSavedLocally.postValue(true)
+            showLoading.postValue(false)
+            showToast.postValue(app.getString(R.string.reminder_saved))
+            navigationCommand.postValue(NavigationCommand.Back)
         }
     }
 
-    fun deleteRemider(reminderData: ReminderDataItem) {
+    fun deleteRemider() {
         showLoading.value = true
         viewModelScope.launch {
-            dataSource.deleteReminder(reminderData.id)
+
+            dataSource.deleteReminder(_reminderData.id)
             showLoading.value = false
             showSnackBarInt.value = R.string.reminder_deleted
 //            showToast.value = app.getString(R.string.reminder_deleted)
@@ -94,14 +100,23 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     /**
      * Validate the entered data and show error to the user if there's any invalid data
      */
-    fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
-        if (reminderData.title.isNullOrEmpty()) {
+    fun validateEnteredData(): Boolean {
+
+        _reminderData = ReminderDataItem(
+            reminderTitle.value,
+            reminderDescription.value,
+            reminderSelectedLocationStr.value,
+            selectedPOI.value?.latLng?.latitude,
+            selectedPOI.value?.latLng?.longitude
+        )
+
+        if (_reminderData.title.isNullOrEmpty()) {
             remiderSavedLocally.postValue(false)
             showSnackBarInt.value = R.string.err_enter_title
             return false
         }
 
-        if (reminderData.location.isNullOrEmpty()) {
+        if (_reminderData.location.isNullOrEmpty()) {
             remiderSavedLocally.postValue(false)
 
             showSnackBarInt.value = R.string.err_select_location
@@ -110,5 +125,11 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         return true
     }
 
-
+//    @VisibleForTesting
+//    fun setDataItemForTest(item: ReminderDataItem) {
+//        _reminderData = item
+//    }
+//
+//    @VisibleForTesting
+//    fun dataIsInitialized() = ::_reminderData.isInitialized
 }

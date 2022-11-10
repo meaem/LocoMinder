@@ -15,43 +15,37 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class ReminderListFragment : BaseFragment() {
     //use Koin to retrieve the ViewModel instance
     override val _viewModel: RemindersListViewModel by viewModel()
-
     private lateinit var binding: FragmentRemindersBinding
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding =
             DataBindingUtil.inflate(
                 inflater,
                 R.layout.fragment_reminders, container, false
             )
-
         binding.viewModel = _viewModel
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(false)
         setTitle(getString(R.string.app_name))
 
+        binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
 
+        _viewModel.showLoading.observe(viewLifecycleOwner) {
+            binding.refreshLayout.isRefreshing = it
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.lifecycleOwner = this
-
         setupRecyclerView()
-
         binding.addReminderFAB.setOnClickListener {
             navigateToAddReminder()
         }
-
-        binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
-
     }
 
     override fun onResume() {
@@ -70,19 +64,27 @@ class ReminderListFragment : BaseFragment() {
     }
 
     private fun setupRecyclerView() {
-        val adapter = RemindersListAdapter {}
+        val adapter = RemindersListAdapter {
+        }
 
-        // setup the recycler view using the extension function
+//        setup the recycler view using the extension function
         binding.reminderssRecyclerView.setup(adapter)
     }
 
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            R.id.logout -> {
+////                TODO: add the logout implementation
+//            }
+//        }
+//        return super.onOptionsItemSelected(item)
+//
+//    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-
-        // display logout as menu item
+//        display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
     }
-
 
 }

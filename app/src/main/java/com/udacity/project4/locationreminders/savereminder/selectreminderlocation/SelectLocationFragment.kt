@@ -123,14 +123,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //            }
         }
 
-        _viewModel.reminderSelectedLocationStr.observe(viewLifecycleOwner) {
-            binding.btnSelect.isEnabled = it != null
-        }
+//        _viewModel.reminderSelectedLocationStr.observe(viewLifecycleOwner) {
+//            binding.btnSelect.isEnabled = it != null
+//        Log.d(TAG,it.toString())
+//        }
         _viewModel.selectedPOI.observe(viewLifecycleOwner) {
             if (_viewModel.mapReady.value == true) {
 
                 if (it != null) {
-                    _viewModel.reminderSelectedLocationStr.postValue(it.name)
+//                    _viewModel.reminderSelectedLocationStr.postValue(it.name)
                     updateMarkerLocation(it)
                 }
             }
@@ -163,7 +164,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 _viewModel.selectedPOI.value?.let { updateMarkerLocation(it) }
                 EspressoIdlingResource.decrement()
             } else {
-                binding.btnSelect.isEnabled = false
+//                binding.btnSelect.isEnabled = false
                 EspressoIdlingResource.increment()
             }
 
@@ -202,9 +203,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //        _viewModel.longitude.value = marker?.position?.longitude
 //        _viewModel.latitude.value = marker?.position?.latitude
 //        _viewModel.reminderSelectedLocationStr.postValue(marker?.title)
-        Log.d(TAG, "xlocation: " + _viewModel.selectedPOI.value?.name)
-        Log.d(TAG, "xLocationStr: " + _viewModel.reminderSelectedLocationStr.value)
-
+//        Log.d(TAG, "xlocation: " + _viewModel.selectedPOI.value?.name)
+//        Log.d(TAG, "xLocationStr: " + _viewModel.reminderSelectedLocationStr.value)
+        _viewModel.reminderSelectedLocationStr.postValue(_viewModel.selectedPOI.value?.name)
         _viewModel.navigationCommand.postValue(NavigationCommand.Back)
 
 

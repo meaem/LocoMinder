@@ -32,11 +32,13 @@ class MyApp : Application() {
                 )
             }
 
-            single<LiveData<FirebaseUser?>> { FirebaseUserLiveData() }
+
             viewModel {
                 AuthenticationViewModel(get(), get())
             }
 
+            single<LiveData<FirebaseUser?>> { FirebaseUserLiveData() }
+            
             //Declare singleton definitions to be later injected using by inject()
             single {
                 //This view model is declared singleton to be used across multiple fragments

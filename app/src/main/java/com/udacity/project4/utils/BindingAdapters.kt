@@ -1,5 +1,6 @@
 package com.udacity.project4.utils
 
+import android.util.Log
 import android.view.View
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
@@ -8,6 +9,8 @@ import com.udacity.project4.base.BaseRecyclerViewAdapter
 
 
 object BindingAdapters {
+
+    private val TAG: String = "BindingAdapters"
 
     /**
      * Use binding adapter to set the recycler view data using livedata object
@@ -30,6 +33,7 @@ object BindingAdapters {
     @BindingAdapter("android:fadeVisible")
     @JvmStatic
     fun setFadeVisible(view: View, visible: Boolean? = true) {
+        Log.d(TAG, "setFadeVisible ${view::class.java.simpleName}  $visible")
         if (view.tag == null) {
             view.tag = true
             view.visibility = if (visible == true) View.VISIBLE else View.GONE

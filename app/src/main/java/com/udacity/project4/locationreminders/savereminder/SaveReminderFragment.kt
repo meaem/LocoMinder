@@ -36,7 +36,7 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var binding: FragmentSaveReminderBinding
     private lateinit var geofencingClient: GeofencingClient
 
-    private lateinit var rData: ReminderDataItem
+//    private lateinit var rData: ReminderDataItem
 
     private val TAG = SaveReminderFragment::class.java.simpleName
 
@@ -92,6 +92,8 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.viewModel = _viewModel
 
+
+
         binding.selectLocation.setOnClickListener {
             //            Navigate to SelectLocation fragment to get the user location
 
@@ -99,22 +101,23 @@ class SaveReminderFragment : BaseFragment() {
                 NavigationCommand.To(SaveReminderFragmentDirections.toSelectLocationFragment())
         }
 
+
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
 
         binding.saveReminder.setOnClickListener {
-            val title = _viewModel.reminderTitle.value
-            val description = _viewModel.reminderDescription.value
-            val location = _viewModel.reminderSelectedLocationStr.value
-            val latitude = _viewModel.selectedPOI.value?.latLng?.latitude
-            val longitude = _viewModel.selectedPOI.value?.latLng?.longitude
-            rData =
-                ReminderDataItem(title, description, location, latitude, longitude)
+//            val title = _viewModel.reminderTitle.value
+//            val description = _viewModel.reminderDescription.value
+//            val location = _viewModel.reminderSelectedLocationStr.value
+//            val latitude = _viewModel.selectedPOI.value?.latLng?.latitude
+//            val longitude = _viewModel.selectedPOI.value?.latLng?.longitude
+//            rData =
+//                ReminderDataItem(title, description, location, latitude, longitude)
 
-            if (_viewModel.validateEnteredData(rData)) {
+            if (_viewModel.validateEnteredData()) {
                 if (isBackgroundLocationPermissionGranted()) {
 
 
-                    _viewModel.validateAndSaveReminder(rData)
+                    _viewModel.validateAndSaveReminder()
 
                 } else {
 
@@ -131,7 +134,7 @@ class SaveReminderFragment : BaseFragment() {
             if (it) {
 //            TODO: use the user entered reminder details to:
 //             1) add a geofencing request
-                val geo = getGeofence(rData)
+                val geo = getGeofence(_viewModel.reminderData)
                 Log.d(TAG, "The following Geofence will bw added $geo")
                 geofencingClient.addGeofences(getGeofencingRequest(geo), geofencePendingIntent)
                     .run {
@@ -145,7 +148,7 @@ class SaveReminderFragment : BaseFragment() {
                         }
                         addOnFailureListener {
 
-                            _viewModel.deleteRemider(rData)
+                            _viewModel.deleteRemider()
 //                            CoroutineScope(Dispatchers.Main).launch{
                             _viewModel.showErrorMessage.value = "Could not add the Geofence"
 //
@@ -165,6 +168,14 @@ class SaveReminderFragment : BaseFragment() {
 //
 //
 //    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+//        _viewModel.showLoading.observe(viewLifecycleOwner){
+//            Log.d("BindingAdapters**",it.toString())
+//        }
+    }
 
     private fun getGeofence(rData: ReminderDataItem) =
         Geofence.Builder()
