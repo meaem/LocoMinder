@@ -48,10 +48,11 @@ class RemindersDaoTest {
         val reminder = ReminderDTO(
             "title", "description", "location", 15.22, 17.2
         )
-        database.reminderDao().saveReminder(reminder)
+        val reminderDao = database.reminderDao()
+        reminderDao.saveReminder(reminder)
 
         // WHEN - Get the reminder by id from the database.
-        val loaded = database.reminderDao().getReminderById(reminder.id)
+        val loaded = reminderDao.getReminderById(reminder.id)
 
         // THEN - The loaded data contains the expected values.
         assertThat<ReminderDTO>(loaded, notNullValue())
@@ -77,12 +78,13 @@ class RemindersDaoTest {
         val reminder = ReminderDTO(
             "title", "description", "location", 15.22, 17.2
         )
-        database.reminderDao().saveReminder(reminder)
+        val reminderDao = database.reminderDao()
+        reminderDao.saveReminder(reminder)
         val reminder2 = reminder.copy(title = "updated title")
-        database.reminderDao().saveReminder(reminder2)
+        reminderDao.saveReminder(reminder2)
 
         // WHEN - Get the reminder by id from the database.
-        val loaded = database.reminderDao().getReminderById(reminder.id)
+        val loaded = reminderDao.getReminderById(reminder.id)
 
         // THEN - The loaded data contains the last saved reminder.
         assertThat<ReminderDTO>(loaded, notNullValue())
@@ -94,5 +96,22 @@ class RemindersDaoTest {
 
     }
 
+    @Test
+    fun insertReminder_Delete_GetById_ReturnNull() = runTest {
+        // GIVEN - Insert a reminder twice with different data except the id.
+        val reminder = ReminderDTO(
+            "title", "description", "location", 15.22, 17.2
+        )
+        val reminderDao = database.reminderDao()
+        reminderDao.saveReminder(reminder)
+        
+        reminderDao.deleteReminder(reminder.id)
+        // WHEN - Get the reminder by id from the database.
+        val loaded = reminderDao.getReminderById(reminder.id)
+
+        // THEN - The loaded data contains the last saved reminder.
+        assertThat(loaded, nullValue())
+
+    }
 
 }

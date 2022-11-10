@@ -102,26 +102,27 @@ class SaveReminderFragment : BaseFragment() {
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
 
         binding.saveReminder.setOnClickListener {
+            val title = _viewModel.reminderTitle.value
+            val description = _viewModel.reminderDescription.value
+            val location = _viewModel.reminderSelectedLocationStr.value
+            val latitude = _viewModel.selectedPOI.value?.latLng?.latitude
+            val longitude = _viewModel.selectedPOI.value?.latLng?.longitude
+            rData =
+                ReminderDataItem(title, description, location, latitude, longitude)
 
-            if (isBackgroundLocationPermissionGranted()) {
+            if (_viewModel.validateEnteredData(rData)) {
+                if (isBackgroundLocationPermissionGranted()) {
 
 
-                val title = _viewModel.reminderTitle.value
-                val description = _viewModel.reminderDescription.value
-                val location = _viewModel.reminderSelectedLocationStr.value
-                val latitude = _viewModel.selectedPOI.value?.latLng?.latitude
-                val longitude = _viewModel.selectedPOI.value?.latLng?.longitude
+                    _viewModel.validateAndSaveReminder(rData)
 
-                rData =
-                    ReminderDataItem(title, description, location, latitude, longitude)
-                _viewModel.validateAndSaveReminder(rData)
+                } else {
 
-            } else {
+                    requestBackgroundLocationPermissionLauncher.launch(
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    )
 
-                requestBackgroundLocationPermissionLauncher.launch(
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                )
-
+                }
             }
 
         }

@@ -360,5 +360,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //                }
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        _viewModel.mapReady.postValue(false)
+    }
 }

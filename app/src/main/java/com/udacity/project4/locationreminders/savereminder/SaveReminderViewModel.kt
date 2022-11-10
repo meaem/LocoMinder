@@ -42,8 +42,9 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         reminderDescription.postValue(null)
         reminderSelectedLocationStr.postValue(null)
         selectedPOI.postValue(null)
-//        latitude.value = null
-//        longitude.value = null
+        remiderSavedLocally.postValue(false)
+        mapReady.postValue(false)
+
     }
 
     /**
