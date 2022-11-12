@@ -160,11 +160,6 @@ class RemindersActivityTest : AutoCloseKoinTest() {
         //go to save reminder fragment
         onView(withId(R.id.selectLocation)).check(matches(isDisplayed()))
         onView(withId(R.id.selectLocation)).check(matches(isEnabled()))
-
-
-
-
-
         onView(withId(R.id.selectLocation)).perform(click())
 
 
@@ -208,10 +203,6 @@ class RemindersActivityTest : AutoCloseKoinTest() {
         onView(withId(R.id.selectLocation)).check(matches(isDisplayed()))
         onView(withId(R.id.selectLocation)).check(matches(isEnabled()))
 
-
-
-
-
         onView(withId(R.id.selectLocation)).perform(click())
 
 
@@ -231,30 +222,11 @@ class RemindersActivityTest : AutoCloseKoinTest() {
         onView(withId(R.id.btnSelect)).check(matches(not(isEnabled())))
 
         onView(withId(R.id.map)).check(matches(isDisplayed()))
-        /*****/
-//        val toastStr = context.getString(
-//            R.string.select_location_educational_msg,
-//            context.getString(R.string.btn_select_location).uppercase()
-//        )
-//
-//        //go the select location fragment
-//        onView(withText(toastStr))
-//            .inRoot(withDecorView(not(decorView)))
-//            .check(matches(isDisplayed()))
 
-//        assertThat(saveReminderViewModel.selectedPOI.value, `is`(nullValue()))
-//        assertThat(saveReminderViewModel.mapReady.value, `is`(true))
-//
         onView(withId(R.id.map)).perform(longClick())
-//        assertThat(saveReminderViewModel.selectedPOI.value, `is`(not(nullValue())))
         onView(withId(R.id.btnSelect)).check(matches(isEnabled()))
 
-//        Thread.sleep(5000)
         onView(withId(R.id.btnSelect)).perform(click())
-//        assertThat(saveReminderViewModel.reminderSelectedLocationStr.value, `is`(not(nullValue())))
-//        assertThat(saveReminderViewModel.reminderSelectedLocationStr.value, `is`(not("")))
-//        assertThat(saveReminderViewModel.selectedPOI.value, `is`(not(nullValue())))
-
 
         onView(withId(R.id.reminderTitle)).check(matches(isDisplayed()))
         onView(withId(R.id.reminderTitle)).perform(typeText("Test Title"))
@@ -263,14 +235,6 @@ class RemindersActivityTest : AutoCloseKoinTest() {
 
         onView(withId(R.id.saveReminder))
             .perform(click())
-
-
-//        //go the select location fragment
-//        onView(withText(context.getString(R.string.reminder_saved)))
-//            .inRoot(withDecorView(not(decorView)))
-//            .check(matches(isDisplayed()))
-//        onView(withId(com.google.android.material.R.id.snackbar_text))
-//            .check(matches(withText(R.string.reminder_saved)))
 
         val toastStr2 = context.getString(R.string.reminder_saved)
         //go the select location fragment
@@ -283,5 +247,4 @@ class RemindersActivityTest : AutoCloseKoinTest() {
 
         activityScenario.close()
     }
-
 }
