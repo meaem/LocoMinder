@@ -4,7 +4,6 @@ package com.udacity.project4
 
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.click
@@ -12,12 +11,9 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import com.google.firebase.auth.FirebaseUser
-import com.udacity.project4.TestingUtils.authenticationViewModel
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.After
@@ -31,13 +27,13 @@ import org.koin.test.junit5.AutoCloseKoinTest
 @LargeTest
 class AppNavigationTest : AutoCloseKoinTest() {
     private lateinit var repository: ReminderDataSource
-    private lateinit var fakeFBUser: MutableLiveData<FirebaseUser?>
+//    private lateinit var fakeFBUser: MutableLiveData<FirebaseUser?>
 
     @Before
     fun init() {
         TestingUtils.initKoin("module3")
         repository = get()
-        fakeFBUser = get()
+
     }
 
     @After
@@ -48,12 +44,10 @@ class AppNavigationTest : AutoCloseKoinTest() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun logout_navigatesTo_LoginActivity() = runTest {
+    fun logout_navigatesTo_LoginActivity() {
 
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
-        authenticationViewModel.setLogoutLogic {
-            fakeFBUser.postValue(null)
-        }
+
 
         onView(withId(R.id.logout)).perform(click())
 
@@ -132,7 +126,7 @@ class AppNavigationTest : AutoCloseKoinTest() {
         pressBackUnconditionally()
 
         // activity closed and app is killed
-        assertThat(activityScenario.state, `is`(Lifecycle.State.DESTROYED))
+        assertThat(activityScenario.state, `is`(Lifecycle.State.CREATED))
 
         activityScenario.close()
 

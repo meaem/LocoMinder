@@ -1,6 +1,7 @@
 package com.udacity.project4.authentication
 
 import android.app.Application
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
@@ -14,6 +15,7 @@ class AuthenticationViewModel(
 ) : BaseViewModel(app) {
 
     private var logoutLogic = fun() {
+        Log.d("AuthenticationViewModel", "logoutLogic")
         AuthUI.getInstance()
             .signOut(getApplication())
             .addOnCompleteListener {

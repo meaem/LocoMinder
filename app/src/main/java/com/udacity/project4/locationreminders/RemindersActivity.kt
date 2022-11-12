@@ -42,7 +42,7 @@ class RemindersActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-
+// Todo entable this block before submission
         viewModel.authenticationState.observe(this) { authenticationState ->
             when (authenticationState) {
                 AuthenticationViewModel.AuthenticationState.UNAUTHENTICATED -> {
@@ -68,6 +68,7 @@ class RemindersActivity : AppCompatActivity() {
                 return true
             }
             R.id.logout -> {
+                Log.d(TAG, "logout")
                 viewModel.logout()
             }
         }

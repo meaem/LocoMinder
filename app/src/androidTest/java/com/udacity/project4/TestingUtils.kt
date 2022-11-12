@@ -87,9 +87,13 @@ object TestingUtils {
 
         single<MutableLiveData<FirebaseUser?>> { FakeFirebaseUserLiveData(FakeFirebaseUser()) }
         viewModel {
+            val fakeFBUser: MutableLiveData<FirebaseUser?> = get()
             authenticationViewModel = AuthenticationViewModel(
                 get<MutableLiveData<FirebaseUser?>>() as LiveData<FirebaseUser?>, get()
             )
+            authenticationViewModel.setLogoutLogic {
+                fakeFBUser.postValue(null)
+            }
             authenticationViewModel
         }
         viewModel {
