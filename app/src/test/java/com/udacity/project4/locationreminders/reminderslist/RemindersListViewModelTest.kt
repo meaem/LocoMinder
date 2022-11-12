@@ -12,10 +12,9 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.junit5.AutoCloseKoinTest
 
 @RunWith(AndroidJUnit4::class)
-class RemindersListViewModelTest : AutoCloseKoinTest() {
+class RemindersListViewModelTest {
     private lateinit var viewModel: RemindersListViewModel
     private lateinit var repository: FakeRemindersLocalRepository
 

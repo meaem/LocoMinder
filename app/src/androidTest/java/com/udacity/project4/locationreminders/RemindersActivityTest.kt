@@ -1,13 +1,17 @@
 package com.udacity.project4.locationreminders
 
+import android.content.Context
+import android.view.View
 import androidx.lifecycle.Lifecycle.State.DESTROYED
 import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -42,6 +46,9 @@ class RemindersActivityTest : AutoCloseKoinTest() {
     private val dataBindingIdlingResource = DataBindingIdlingResource()
     private lateinit var fakeFBUser: MutableLiveData<FirebaseUser?>
 
+    private lateinit var decorView: View
+
+
     @get:Rule
     val permissionRule = GrantPermissionRule.grant(
         android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -55,39 +62,7 @@ class RemindersActivityTest : AutoCloseKoinTest() {
 
         TestingUtils.initKoin("module2")
 
-//        val myModule = module {
-//
-//            viewModel {
-//                RemindersListViewModel(
-//                    app = get(),
-//                    dataSource = get() as ReminderDataSource
-//                )
-//            }
-//
-//            single<MutableLiveData<FirebaseUser?>> { FakeFirebaseUserLiveData(FakeFirebaseUser()) }
-//            viewModel {
-//                authenticationViewModel = AuthenticationViewModel(
-//                    get<MutableLiveData<FirebaseUser?>>() as LiveData<FirebaseUser?>, get()
-//                )
-//                authenticationViewModel
-//            }
-//            viewModel {
-//                saveReminderViewModel = SaveReminderViewModel(get(), get())
-//                saveReminderViewModel
-//            }
-//            single { LocalDB.createRemindersDao(get()) }
-//
-//            single<ReminderDataSource> { RemindersLocalRepository(get(), Dispatchers.Main) }
-////            single { RemindersListViewModel(get(),get()) }
-//
-//        }
-//
-//        startKoin {
-//
-//
-//            androidContext(ApplicationProvider.getApplicationContext())
-//            modules(listOf(myModule))
-//        }
+
 
         repository = get()
         fakeFBUser = get()
@@ -154,17 +129,34 @@ class RemindersActivityTest : AutoCloseKoinTest() {
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
 
+        val context: Context = ApplicationProvider.getApplicationContext()
+
+        activityScenario.onActivity {
+            decorView = it.getWindow().getDecorView();
+        }
+
 
         //start on the list fragment
         onView(withId(R.id.addReminderFAB)).check(matches(isDisplayed()))
         onView(withId(R.id.addReminderFAB)).perform(click())
 
+
         //go to save reminder fragment
         onView(withId(R.id.selectLocation)).check(matches(isDisplayed()))
+
+
         onView(withId(R.id.selectLocation)).perform(click())
 
+        val toastStr = context.getString(
+            R.string.select_location_educational_msg,
+            context.getString(R.string.btn_select_location).uppercase()
+        )
 
         //go the select location fragment
+        onView(withText(toastStr))
+            .inRoot(withDecorView(not(decorView)))
+            .check(matches(isDisplayed()))
+
         onView(withId(R.id.btnSelect)).check(matches(isDisplayed()))
         onView(withId(R.id.btnSelect)).check(matches(not(isEnabled())))
         onView(withId(R.id.map)).check(matches(isDisplayed()))

@@ -20,6 +20,9 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 
+//import org.mockito.kotlin.doReturn
+//import org.mockito.kotlin.mock
+
 object TestingUtils {
 
     lateinit var saveReminderViewModel: SaveReminderViewModel
@@ -43,7 +46,8 @@ object TestingUtils {
 
     val module2 = module {
 
-        viewModel() {
+
+    viewModel() {
             RemindersListViewModel(
                 app = get(),
                 dataSource = get()
@@ -114,9 +118,6 @@ object TestingUtils {
     fun initKoin(moduleName: String) {
 
         releaseKoin()
-
-
-
 
 
         startKoin {
