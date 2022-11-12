@@ -26,7 +26,6 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import com.udacity.project4.utils.EspressoIdlingResource
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
@@ -162,10 +161,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //        map.addGroundOverlay(androidOverlay)
 
                 _viewModel.selectedPOI.value?.let { updateMarkerLocation(it) }
-                EspressoIdlingResource.decrement()
+//                EspressoIdlingResource.decrement()
             } else {
 //                binding.btnSelect.isEnabled = false
-                EspressoIdlingResource.increment()
+//                EspressoIdlingResource.increment()
             }
 
         }

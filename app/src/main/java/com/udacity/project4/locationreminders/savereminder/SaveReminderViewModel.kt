@@ -66,8 +66,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
      */
     private fun saveReminder() {
         showLoading.value = true
-
-        reminderTitle.value = "saving!!"
         viewModelScope.launch {
             dataSource.saveReminder(
                 ReminderDTO(

@@ -150,7 +150,8 @@ class SaveReminderFragment : BaseFragment() {
 
                             _viewModel.deleteRemider()
 //                            CoroutineScope(Dispatchers.Main).launch{
-                            _viewModel.showErrorMessage.value = "Could not add the Geofence"
+                            _viewModel.showErrorMessage.value =
+                                "Could not add the Geofence because of this error : ${it.message}"
 //
 //                            }
                         }
