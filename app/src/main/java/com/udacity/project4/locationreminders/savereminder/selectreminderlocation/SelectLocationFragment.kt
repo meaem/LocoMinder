@@ -28,7 +28,7 @@ import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.EspressoIdlingResource
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private var marker: Marker? = null
@@ -37,7 +37,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     //Use Koin to get the view model of the SaveReminder
-    override val _viewModel: SaveReminderViewModel by inject()
+    override val _viewModel: SaveReminderViewModel by activityViewModel()
     private lateinit var binding: FragmentSelectLocationBinding
 
 
@@ -117,7 +117,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 //            } else {
 //                Log.d(TAG, "null marker")
-//                _viewModel.showErrorMessage.value =
+//                _viewModel.showToast.value =
 //                    "Please select a place by either click on any landmark or by long click on any desired location"
 
 //            }
@@ -171,10 +171,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
 //
 
-//        _viewModel.showSnackBar.value = getString(
-//            R.string.select_location_educational_msg,
-//            getString(R.string.btn_select_location).uppercase()
-//        )
+        _viewModel.showToast.value = getString(
+            R.string.select_location_educational_msg,
+            getString(R.string.btn_select_location).uppercase()
+        )
 //        _viewModel.showToast.call()
 
 
