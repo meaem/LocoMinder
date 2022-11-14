@@ -4,7 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.content.IntentSender
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -12,12 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingClient
-import com.google.android.gms.location.GeofencingRequest
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -25,9 +22,11 @@ import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.utils.isBackgroundLocationPermissionGranted
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
+private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
 
 class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
@@ -59,12 +58,20 @@ class SaveReminderFragment : BaseFragment() {
     @SuppressLint("MissingPermission")
     val requestBackgroundLocationPermissionLauncher =
         registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
+            ActivityResultContracts.RequestMultiplePermissions()// .RequestPermission()
+        ) { permissions ->
+            permissions.entries.forEach {
+                Log.d("DEBUG", "${it.key} = ${it.value}")
+            }
+
+            /*
+            *  isGranted: Boolean ->
             if (isGranted) {
                 // Permission is granted. Continue the action or workflow in your
                 // app.
 //                checkDeviceLocationSettingsAndStartGeofence()
+
+                showEnableLocationSetting()
                 Log.d(TAG, "good, permission granted ")
             } else {
                 // Explain to the user that the feature is unavailable because the
@@ -75,7 +82,7 @@ class SaveReminderFragment : BaseFragment() {
                 Log.d(TAG, "Ooops, permission not granted ")
                 displayLocationRationale()
 
-            }
+            }*/
         }
 
     @SuppressLint("MissingPermission", "InlinedApi")
@@ -105,24 +112,22 @@ class SaveReminderFragment : BaseFragment() {
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
 
         binding.saveReminder.setOnClickListener {
-//            val title = _viewModel.reminderTitle.value
-//            val description = _viewModel.reminderDescription.value
-//            val location = _viewModel.reminderSelectedLocationStr.value
-//            val latitude = _viewModel.selectedPOI.value?.latLng?.latitude
-//            val longitude = _viewModel.selectedPOI.value?.latLng?.longitude
-//            rData =
-//                ReminderDataItem(title, description, location, latitude, longitude)
 
             if (_viewModel.validateEnteredData()) {
-                if (isBackgroundLocationPermissionGranted()) {
+                if (isBackgroundLocationPermissionGranted(requireContext())) {
+                    Log.d(TAG, "BackgroundLocationPermissionGranted ")
+//                    checkDeviceLocationSettings()
+                    showEnableLocationSetting()
 
-
-                    _viewModel.validateAndSaveReminder()
 
                 } else {
 
                     requestBackgroundLocationPermissionLauncher.launch(
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                        )
                     )
 
                 }
@@ -262,19 +267,156 @@ class SaveReminderFragment : BaseFragment() {
 //
 //    }
 
-    private fun isBackgroundLocationPermissionGranted(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-        ) {
-            PackageManager.PERMISSION_GRANTED ==
-                    ContextCompat.checkSelfPermission(
-                        requireActivity(),
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    )
-        } else {
-            true
-        }
 
+    fun showEnableLocationSetting() {
+//        activity?.let {
+//        val request = LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 1000)
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 500)
+            .setMinUpdateIntervalMillis(500)
+            .setMaxUpdateDelayMillis(1000)
+            .setMaxUpdates(1)
+//            .build()
+//            val locationRequest = LocationRequest.create()
+//            locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(request.build())
+
+        val task = LocationServices.getSettingsClient(requireContext())
+            .checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener { response ->
+            val states = response.locationSettingsStates
+            if (states != null) {
+                if (states.isLocationPresent) {
+                    Log.d(TAG, "Done!!")
+                    _viewModel.validateAndSaveReminder()
+                } else {
+                    Log.d(TAG, "else 1  !!")
+                }
+            } else {
+                Log.d(TAG, "else 2 !!")
+            }
+        }
+        task.addOnFailureListener { e ->
+            if (e is ResolvableApiException) {
+                try {
+                    // Handle result in onActivityResult()
+                    e.startResolutionForResult(
+                        requireActivity(),
+                        REQUEST_TURN_DEVICE_LOCATION_ON
+                    )
+                } catch (sendEx: IntentSender.SendIntentException) {
+
+                    sendEx.printStackTrace()
+                }
+            } else {
+
+                Log.d(TAG, "else 3!!")
+                e.printStackTrace()
+            }
+        }
+//        }
     }
 
+//    private fun checkDeviceLocationSettings(resolve: Boolean = true) {
+////        val locationRequest = LocationRequest.create().apply {
+////            priority = LocationRequest.PRIORITY_LOW_POWER
+////        }
+//        val request = LocationRequest.Builder(10000)
+//
+////
+//        val builder = LocationSettingsRequest.Builder()
+//            .addLocationRequest(request.build())
+//
+////        val builder = LocationSettingsRequest.Builder()
+////            .addLocationRequest(mLocationRequestHighAccuracy)
+////            .addLocationRequest(mLocationRequestBalancedPowerAccuracy)
+//
+//        val settingsClient = LocationServices.getSettingsClient(requireActivity())
+//
+//        val task = settingsClient.checkLocationSettings(builder.build())
+//
+////        task.addOnFailureListener { exception ->
+////            if (exception is ResolvableApiException && resolve) {
+////                try {
+////                    exception.startResolutionForResult(
+////                        requireActivity(),
+////                        REQUEST_TURN_DEVICE_LOCATION_ON
+////                    )
+////                } catch (sendEx: IntentSender.SendIntentException) {
+////                    Log.d(TAG, "Error getting location settings resolution: " + sendEx.message)
+////                }
+////            } else {
+////                Log.d(TAG, exception.toString())
+////                Snackbar.make(
+////                    binding.btnSelect,
+////                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+////                ).setAction(android.R.string.ok) {
+////                    checkDeviceLocationSettings()
+////                }.show()
+////            }
+////        }
+////
+////        task.addOnCompleteListener {
+////
+////            if (it.isSuccessful) {
+////
+////            }
+////        }
+//
+//
+//        task.addOnCompleteListener {
+//
+//
+//            try {
+//                val response: LocationSettingsResponse = it.getResult(ApiException::class.java)
+//                // All location settings are satisfied. The client can initialize location
+//                // requests here.
+//                // ...
+//                Log.d(TAG,"try location")
+//                _viewModel.validateAndSaveReminder()
+//                Log.d(TAG,"finish try")
+//
+//            } catch (exception: ApiException) {
+//                Log.d(TAG,"catch exception: ApiException")
+//                when (exception.getStatusCode()) {
+//                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED ->
+//
+//                        // Location settings are not satisfied. But could be fixed by showing the
+//                        // user a dialog.
+//                        try {
+//                            Log.d(TAG,"when LocationSettingsStatusCodes.RESOLUTION_REQUIRED ")
+//
+//                            // Cast to a resolvable exception.
+//                            val resolvable = exception as ResolvableApiException
+//                            // Show the dialog by calling startResolutionForResult(),
+//                            // and check the result in onActivityResult().
+//                            resolvable.startResolutionForResult(
+//                                requireActivity(),
+//                                REQUEST_TURN_DEVICE_LOCATION_ON
+//                            )
+//                        } catch (e: IntentSender.SendIntentException) {
+//                            Log.d(TAG,"catch (e: IntentSender.SendIntentException) ")
+//
+//                            // Ignore the error.
+//                        } catch (e: ClassCastException) {
+//                            // Ignore, should be an impossible error.
+//                            Log.d(TAG,"catch (e: ClassCastException)")
+//                        }
+//
+//                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
+//                        Log.d(TAG,"when LocationSettingsStatusCodes.RESOLUTION_REQUIRED ")
+//                        // Location settings are not satisfied. However, we have no way to fix the
+//                        // settings so we won't show the dialog.
+////                        ...
+////                        break;
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//    }
 
 }

@@ -42,7 +42,7 @@ class RemindersActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-// Todo entable this block before submission
+// Todo enable this block before submission
         viewModel.authenticationState.observe(this) { authenticationState ->
             when (authenticationState) {
                 AuthenticationViewModel.AuthenticationState.UNAUTHENTICATED -> {
