@@ -25,8 +25,8 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import com.udacity.project4.utils.askForPermissions
-import com.udacity.project4.utils.checkPermissions
+import com.udacity.project4.utils.askForForegroundPermissions
+import com.udacity.project4.utils.checkForegroundPermissions
 import com.udacity.project4.utils.register
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -94,7 +94,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             if (it) {
 
                 // TODO: zoom to the user location after taking his permission
-                checkPermissions(requestLocationPermissionLauncher, { setCurrentLocation() })
+                checkForegroundPermissions(
+                    requestLocationPermissionLauncher,
+                    { setCurrentLocation() })
 
                 // TODO: add style to the map
                 setMapStyle(map)
@@ -212,7 +214,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 Snackbar.LENGTH_INDEFINITE
             )
                 .setAction("Ok") {
-                    askForPermissions(requestLocationPermissionLauncher)
+                    askForForegroundPermissions(requestLocationPermissionLauncher)
                 }
                 .show()
         }
