@@ -3,6 +3,8 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.content.res.Resources
 import android.location.Location
 import android.os.Bundle
@@ -74,13 +76,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.lifecycleOwner = this
 
 
-        _viewModel.locationServiceEnabled.observe(viewLifecycleOwner) {
-            it?.let {
-                if (it) {
-                    setCurrentLocationOnMap()
-                }
-            }
-        }
+//        _viewModel.locationServiceEnabled.observe(viewLifecycleOwner) {
+//            it?.let {
+//                if (it) {
+//                    setCurrentLocationOnMap()
+//                }
+//            }
+//        }
         binding.btnSelect.setOnClickListener {
             onLocationSelected()
         }
@@ -272,7 +274,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onDestroy() {
         super.onDestroy()
         _viewModel.mapReady.postValue(false)
-        _viewModel.locationServiceEnabled.postValue(false)
+//        _viewModel.locationServiceEnabled.postValue(false)
     }
 
     override fun onStart() {
@@ -294,6 +296,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //            requestLocationPermissionLauncher
 //        ) { }
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(TAG, "onActivityResult from Fragment")
+        when (requestCode) {
+            REQUEST_TURN_DEVICE_LOCATION_ON -> when (resultCode) {
+                Activity.RESULT_OK -> setCurrentLocationOnMap()
+            }
+        }
     }
 
 

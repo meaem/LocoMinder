@@ -2,6 +2,7 @@ package com.udacity.project4.locationreminders.savereminder
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
@@ -22,10 +23,7 @@ import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
-import com.udacity.project4.utils.checkAllPermissions
-import com.udacity.project4.utils.checkDeviceLocationSettings
-import com.udacity.project4.utils.registerAll
-import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import com.udacity.project4.utils.*
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 
@@ -131,13 +129,13 @@ class SaveReminderFragment : BaseFragment() {
             }
         }
 
-        _viewModel.locationServiceEnabled.observe(viewLifecycleOwner) {
-            it?.let {
-                if (_viewModel.saveProgressing) {
-                    _viewModel.validateAndSaveReminder()
-                }
-            }
-        }
+//        _viewModel.locationServiceEnabled.observe(viewLifecycleOwner) {
+//            it?.let {
+//                if (_viewModel.saveProgressing) {
+//                    _viewModel.validateAndSaveReminder()
+//                }
+//            }
+//        }
 
         return binding.root
     }
@@ -214,5 +212,24 @@ class SaveReminderFragment : BaseFragment() {
 
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(TAG, "onActivityResult from Fragment")
+        when (requestCode) {
+            REQUEST_TURN_DEVICE_LOCATION_ON -> when (resultCode) {
+                Activity.RESULT_OK -> _viewModel.validateAndSaveReminder()
+                else -> {
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.err_could_not_save_geofence),
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction("Ok") {}
+                        .show()
+                }
+
+            }
+        }
+    }
 
 }

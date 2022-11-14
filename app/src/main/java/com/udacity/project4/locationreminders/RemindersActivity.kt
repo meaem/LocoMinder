@@ -1,6 +1,5 @@
 package com.udacity.project4.locationreminders
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -15,8 +14,6 @@ import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.authentication.AuthenticationViewModel
 import com.udacity.project4.databinding.ActivityRemindersBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import com.udacity.project4.utils.REQUEST_TURN_DEVICE_LOCATION_ON
-import com.udacity.project4.utils.checkDeviceLocationSettings
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -80,19 +77,19 @@ class RemindersActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "onActivityResult from Activity")
-
-
-        when (requestCode) {
-            REQUEST_TURN_DEVICE_LOCATION_ON -> when (resultCode) {
-                Activity.RESULT_OK -> checkDeviceLocationSettings(this,
-                    { _viewModel.locationServiceEnabled.value = true },
-                    {})
-            }
-        }
-
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        Log.d(TAG, "onActivityResult from Activity")
+//
+//
+//        when (requestCode) {
+//            REQUEST_TURN_DEVICE_LOCATION_ON -> when (resultCode) {
+//                Activity.RESULT_OK -> checkDeviceLocationSettings(this,
+//                    { _viewModel.locationServiceEnabled.value = true },
+//                    {})
+//            }
+//        }
+//
+//    }
 
 }
