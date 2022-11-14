@@ -33,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.test.get
 import org.koin.test.junit5.AutoCloseKoinTest
+import kotlin.random.Random
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -229,8 +230,10 @@ class RemindersActivityTest : AutoCloseKoinTest() {
         onView(withId(R.id.btnSelect)).perform(click())
 
         onView(withId(R.id.reminderTitle)).check(matches(isDisplayed()))
-        onView(withId(R.id.reminderTitle)).perform(typeText("Test Title"))
-        onView(withId(R.id.reminderDescription)).perform(typeText("Test Description"))
+        val nn = Random.nextInt()
+        val title = "Test Title $nn"
+        onView(withId(R.id.reminderTitle)).perform(typeText(title))
+        onView(withId(R.id.reminderDescription)).perform(typeText("Test Description $nn"))
         Espresso.closeSoftKeyboard()
 
         onView(withId(R.id.saveReminder))
@@ -242,8 +245,9 @@ class RemindersActivityTest : AutoCloseKoinTest() {
             .inRoot(withDecorView(not(decorView)))
             .check(matches(isDisplayed()))
 
+        onView(withId(R.id.reminderssRecyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.reminderssRecyclerView))
-            .check(matches(hasDescendant(withText("Test Title"))))
+            .check(matches(hasDescendant(withText(title))))
 
         activityScenario.close()
     }

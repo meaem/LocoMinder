@@ -126,7 +126,7 @@ class AppNavigationTest : AutoCloseKoinTest() {
         pressBackUnconditionally()
 
         // activity closed and app is killed
-        assertThat(activityScenario.state, `is`(Lifecycle.State.CREATED))
+        assertThat(activityScenario.state, `is`(Lifecycle.State.DESTROYED))
 
         activityScenario.close()
 
