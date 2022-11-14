@@ -20,6 +20,9 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val reminderDescription = MutableLiveData<String?>()
     val reminderSelectedLocationStr = MutableLiveData<String?>()
     val selectedPOI = MutableLiveData<PointOfInterest?>()
+    val locationServiceEnabled = MutableLiveData<Boolean?>()
+
+    var saveProgressing = false
 
     //    val latitude = MutableLiveData<Double?>()
 //    val longitude = MutableLiveData<Double?>()
@@ -50,6 +53,8 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         remiderSavedLocally.postValue(false)
         mapReady.postValue(false)
         showLoading.postValue(false)
+        locationServiceEnabled.postValue(false)
+        saveProgressing = false
     }
 
     /**
@@ -80,6 +85,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             remiderSavedLocally.postValue(true)
             showLoading.postValue(false)
             showToast.postValue(app.getString(R.string.reminder_saved))
+            saveProgressing = false
             navigationCommand.postValue(NavigationCommand.Back)
         }
     }
@@ -123,11 +129,4 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         return true
     }
 
-//    @VisibleForTesting
-//    fun setDataItemForTest(item: ReminderDataItem) {
-//        _reminderData = item
-//    }
-//
-//    @VisibleForTesting
-//    fun dataIsInitialized() = ::_reminderData.isInitialized
 }

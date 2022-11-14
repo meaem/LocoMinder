@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +14,9 @@ import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.authentication.AuthenticationViewModel
 import com.udacity.project4.databinding.ActivityRemindersBinding
+import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.utils.REQUEST_TURN_DEVICE_LOCATION_ON
+import com.udacity.project4.utils.checkDeviceLocationSettings
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -26,7 +30,8 @@ class RemindersActivity : AppCompatActivity() {
     private lateinit var databinding: ActivityRemindersBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
 
-    private val viewModel: AuthenticationViewModel by viewModel()
+    private val authenticationViewModel: AuthenticationViewModel by viewModel()
+    private val _viewModel: SaveReminderViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +48,7 @@ class RemindersActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
 // Todo enable this block before submission
-        viewModel.authenticationState.observe(this) { authenticationState ->
+        authenticationViewModel.authenticationState.observe(this) { authenticationState ->
             when (authenticationState) {
                 AuthenticationViewModel.AuthenticationState.UNAUTHENTICATED -> {
 //                    Log.d(TAG, "Success user name: '${user?.displayName}'")
@@ -69,9 +74,25 @@ class RemindersActivity : AppCompatActivity() {
             }
             R.id.logout -> {
                 Log.d(TAG, "logout")
-                viewModel.logout()
+                authenticationViewModel.logout()
             }
         }
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(TAG, "onActivityResult from Activity")
+
+
+        when (requestCode) {
+            REQUEST_TURN_DEVICE_LOCATION_ON -> when (resultCode) {
+                Activity.RESULT_OK -> checkDeviceLocationSettings(this,
+                    { _viewModel.locationServiceEnabled.value = true },
+                    {})
+            }
+        }
+
+    }
+
 }

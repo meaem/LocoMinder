@@ -47,7 +47,7 @@ fun isAllLocationPermissionsGranted(context: Context): Boolean {
             isBackgroundLocationPermissionGranted(context)
 }
 
-fun Fragment.register(
+fun Fragment.registerForeground(
     whatToDo: () -> Unit,
     rationale: () -> Unit
 ): ActivityResultLauncher<Array<String>> {
@@ -56,35 +56,39 @@ fun Fragment.register(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
 
-        var allgranted = true
+        val anyGranted = permissions.any { it.value }
 
-        permissions.entries.forEach {
-            Log.d("DEBUG", "${it.key} = ${it.value}")
-            if (!it.value) {
-                allgranted = false
-                return@forEach
-            }
-        }
-        if (allgranted) {
+        if (anyGranted) {
+            Log.d("PermissionsUtils", "Foreground permissions has been granted")
+
             whatToDo()
         } else {
-            Log.d("askForPermissions", "Ooops, permission not granted ")
+            Log.d("PermissionsUtils", "Ooops, Foreground permissions are not granted ")
             rationale()
         }
+    }
+    return x
+}
 
-//
-//
-//    isGranted: Boolean ->
-//        if (isGranted) {
-//            // Permission is granted. Continue the action or workflow in the app.
-//            whatToDo()
-//            Log.d("askForPermissions", "good, permission granted ")
-//        } else {
-//
-//            Log.d("askForPermissions", "Ooops, permission not granted ")
-//            //show educational message if necessary
-//            rationale()
-//        }
+fun Fragment.registerAll(
+    whatToDo: () -> Unit,
+    rationale: () -> Unit
+): ActivityResultLauncher<Array<String>> {
+
+    val x = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+
+        val allGranted = permissions.all { it.value }
+
+        if (allGranted) {
+            Log.d("PermissionsUtils", "All permissions has been granted")
+
+            whatToDo()
+        } else {
+            Log.d("PermissionsUtils", "Ooops, all permissions are not granted ")
+            rationale()
+        }
     }
     return x
 }
@@ -143,11 +147,6 @@ fun Fragment.checkForegroundPermissions(
 
         whatToDo()
     } else {
-        // You can directly ask for the permission.
-        // The registered ActivityResultCallback gets the result of this request.
-//        requestLocationPermissionLauncher.launch(
-//            Manifest.permission.ACCESS_FINE_LOCATION
-//        )
 
         askForForegroundPermissions(requestLocationPermissionLauncher)
     }

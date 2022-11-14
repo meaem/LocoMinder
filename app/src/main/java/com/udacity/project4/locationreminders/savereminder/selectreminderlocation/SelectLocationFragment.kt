@@ -1,8 +1,6 @@
 package com.udacity.project4.locationreminders.savereminder.selectreminderlocation
 
 
-//import com.udacity.project4.utils.isLocationPermissionGranted
-//import com.udacity.project4.utils.requestLocationPermissionLauncher
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.res.Resources
@@ -25,10 +23,7 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import com.udacity.project4.utils.askForForegroundPermissions
-import com.udacity.project4.utils.checkForegroundPermissions
-import com.udacity.project4.utils.register
-import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import com.udacity.project4.utils.*
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 
@@ -46,8 +41,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
 
     private val requestLocationPermissionLauncher =
-        register({ setCurrentLocation() }, { displayLocationRationale() })
+        registerForeground({ setCurrentLocation() }, { displayLocationRationale() })
 
+    private lateinit var mapFragment: SupportMapFragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,8 +59,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.viewModel = _viewModel
 
         _viewModel.mapReady.postValue(false)
+        _viewModel.saveProgressing = false
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         setHasOptionsMenu(true)
@@ -77,6 +74,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.lifecycleOwner = this
 
 
+        _viewModel.locationServiceEnabled.observe(viewLifecycleOwner) {
+            it?.let {
+                if (it) {
+                    setCurrentLocationOnMap()
+                }
+            }
+        }
         binding.btnSelect.setOnClickListener {
             onLocationSelected()
         }
@@ -95,8 +99,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
                 // TODO: zoom to the user location after taking his permission
                 checkForegroundPermissions(
-                    requestLocationPermissionLauncher,
-                    { setCurrentLocation() })
+                    requestLocationPermissionLauncher
+                ) { setCurrentLocation() }
 
                 // TODO: add style to the map
                 setMapStyle(map)
@@ -220,30 +224,76 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    private fun displayLocationServicesSnackbar() {
+
+        Snackbar.make(
+            binding.btnSelect,
+            R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+        ).setAction(android.R.string.ok) {
+            checkDeviceLocationSettings(requireActivity(),
+                { setCurrentLocationOnMap() },
+                { displayLocationServicesSnackbar() })
+        }.show()
+    }
 
     @SuppressLint("MissingPermission")
-    private fun setCurrentLocation() {
-
-
-        map.setMyLocationEnabled(true)
+    private fun setCurrentLocationOnMap() {
+        Log.d(TAG, "setCurrentLocation")
+        map.isMyLocationEnabled = true
 
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_LOW_POWER, null)
             .addOnSuccessListener { location: Location? ->
+                Log.d(TAG, "fusedLocationClient.addOnSuccessListener")
                 if (location != null) {
+                    Log.d(TAG, "current location : $location")
                     val currentLocation = LatLng(location.latitude, location.longitude)
+                    Log.d(TAG, "Camera will move to current location")
+
                     map.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
                             currentLocation,
                             15f
                         )
                     )
+                } else {
+                    Log.d(TAG, "current location : null")
                 }
             }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setCurrentLocation() {
+        checkDeviceLocationSettings(requireActivity(),
+            { setCurrentLocationOnMap() },
+            { displayLocationServicesSnackbar() })
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _viewModel.mapReady.postValue(false)
+        _viewModel.locationServiceEnabled.postValue(false)
+    }
+
+    override fun onStart() {
+        Log.d(TAG, "onStart")
+        super.onStart()
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Log.d(TAG, "onResume")
+//        checkForegroundPermissions(
+//            requestLocationPermissionLauncher
+//        ) { }
+
     }
 
 

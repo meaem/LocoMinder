@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.IntentSender
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -12,8 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -22,11 +23,11 @@ import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.checkAllPermissions
-import com.udacity.project4.utils.register
+import com.udacity.project4.utils.checkDeviceLocationSettings
+import com.udacity.project4.utils.registerAll
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
 
 class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
@@ -34,9 +35,6 @@ class SaveReminderFragment : BaseFragment() {
 
     private lateinit var binding: FragmentSaveReminderBinding
     private lateinit var geofencingClient: GeofencingClient
-
-//    private lateinit var rData: ReminderDataItem
-
     private val TAG = SaveReminderFragment::class.java.simpleName
 
     companion object {
@@ -55,9 +53,29 @@ class SaveReminderFragment : BaseFragment() {
         )
     }
 
+    private fun displayLocationServicesSnackbar() {
 
-    val requestAllPermissionLauncher =
-        register({ showEnableLocationSetting() }, { displayLocationRationale() })
+        Snackbar.make(
+            binding.selectLocation,
+            R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+        ).setAction(android.R.string.ok) {
+            checkDeviceLocationSettings(requireActivity(),
+                { save() },
+                { displayLocationServicesSnackbar() })
+        }.show()
+    }
+
+    private fun save() {
+        _viewModel.saveProgressing = true
+
+        checkDeviceLocationSettings(requireActivity(),
+            { _viewModel.validateAndSaveReminder() },
+            { displayLocationServicesSnackbar() }
+        )
+    }
+
+    private val requestAllPermissionLauncher =
+        registerAll({ save() }, { displayLocationRationale() })
 
 
     @SuppressLint("MissingPermission", "InlinedApi")
@@ -89,7 +107,7 @@ class SaveReminderFragment : BaseFragment() {
         binding.saveReminder.setOnClickListener {
 
             if (_viewModel.validateEnteredData()) {
-                checkAllPermissions(requestAllPermissionLauncher) { showEnableLocationSetting() }
+                checkAllPermissions(requestAllPermissionLauncher) { save() }
             }
 
         }
@@ -110,6 +128,14 @@ class SaveReminderFragment : BaseFragment() {
                                 getString(R.string.err_could_not_add_geofence, it.message)
                         }
                     }
+            }
+        }
+
+        _viewModel.locationServiceEnabled.observe(viewLifecycleOwner) {
+            it?.let {
+                if (_viewModel.saveProgressing) {
+                    _viewModel.validateAndSaveReminder()
+                }
             }
         }
 
@@ -189,49 +215,4 @@ class SaveReminderFragment : BaseFragment() {
     }
 
 
-
-    fun showEnableLocationSetting() {
-        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 500)
-            .setMinUpdateIntervalMillis(500)
-            .setMaxUpdateDelayMillis(1000)
-            .setMaxUpdates(5)
-
-        val builder = LocationSettingsRequest.Builder()
-            .addLocationRequest(request.build())
-
-        val task = LocationServices.getSettingsClient(requireContext())
-            .checkLocationSettings(builder.build())
-
-        task.addOnSuccessListener { response ->
-            val states = response.locationSettingsStates
-            if (states != null) {
-                if (states.isLocationPresent) {
-                    Log.d(TAG, "Done!!")
-                    _viewModel.validateAndSaveReminder()
-                } else {
-                    Log.d(TAG, "else 1  !!")
-                }
-            } else {
-                Log.d(TAG, "else 2 !!")
-            }
-        }
-        task.addOnFailureListener { e ->
-            if (e is ResolvableApiException) {
-                try {
-                    // Handle result in onActivityResult()
-                    e.startResolutionForResult(
-                        requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON
-                    )
-                } catch (sendEx: IntentSender.SendIntentException) {
-
-                    sendEx.printStackTrace()
-                }
-            } else {
-
-                Log.d(TAG, "else 3!!")
-                e.printStackTrace()
-            }
-        }
-    }
 }
