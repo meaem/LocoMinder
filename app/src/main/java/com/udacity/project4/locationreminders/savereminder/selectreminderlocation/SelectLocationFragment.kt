@@ -61,7 +61,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.viewModel = _viewModel
 
         _viewModel.mapReady.postValue(false)
-        _viewModel.saveProgressing = false
+//        _viewModel.saveProgressing = false
 
         mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)

@@ -64,7 +64,7 @@ class SaveReminderFragment : BaseFragment() {
     }
 
     private fun save() {
-        _viewModel.saveProgressing = true
+//        _viewModel.saveProgressing = true
 
         checkDeviceLocationSettings(requireActivity(),
             { _viewModel.validateAndSaveReminder() },
